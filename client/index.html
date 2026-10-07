@@ -1,0 +1,2515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Harvest Route — Redundant Local Produce Network</title>
+  
+  <!-- Google Fonts: Playfair Display for Earthy Serif Headings, Inter for Clean Body Text -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"Playfair Display"', 'Georgia', 'serif'],
+            sans: ['"Inter"', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            earth: {
+              50: '#FBF9F5',
+              100: '#F5EFEB',
+              200: '#EAE0D5',
+              300: '#D5C3B0',
+              400: '#B89F84',
+              500: '#8E6F52',
+              600: '#6F543C',
+              700: '#543F2D',
+              800: '#3D2D20',
+              900: '#2A1E15',
+            },
+            forest: {
+              50: '#F0F7F4',
+              100: '#DDEFE7',
+              200: '#BCDED0',
+              300: '#90C7B2',
+              400: '#5EAA8F',
+              500: '#398C70',
+              600: '#2B7059',
+              700: '#235A48',
+              800: '#1C4537',
+              900: '#153329',
+              950: '#0C1F19',
+            },
+            harvest: {
+              50: '#FFFBEB',
+              100: '#FEF3C7',
+              200: '#FDE68A',
+              300: '#FCD34D',
+              400: '#FBBF24',
+              500: '#E09F3E',
+              600: '#C77D22',
+              700: '#A15E17',
+              800: '#854D16',
+              900: '#713F12',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- React 18, React DOM, Babel for in-browser execution -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body {
+      background-color: #FAF7F2;
+      color: #2A1E15;
+    }
+    .hero-pattern {
+      background-color: #153329;
+      background-image: radial-gradient(#2B7059 1px, transparent 1px), radial-gradient(#2B7059 1px, #153329 1px);
+      background-size: 40px 40px;
+      background-position: 0 0, 20px 20px;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: #F5EFEB;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #B89F84;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body class="font-sans antialiased selection:bg-harvest-200 selection:text-forest-900">
+  <div id="root"></div>
+
+  <!-- Main Application Script -->
+  <script type="text/babel">
+    const { useState, useEffect, useMemo } = React;
+
+    // --- TRANSLATION DATA ---
+    const TRANSLATIONS = {
+      en: {
+        nav: {
+          howItWorks: "How It Works",
+          forFarmers: "For Farmers",
+          forRestaurants: "For Restaurants",
+          network: "The Network",
+          contact: "Contact",
+          joinFarmer: "Join as Farmer",
+          joinRestaurant: "Join as Restaurant",
+          demoRestaurant: "Demo Restaurant",
+          demoFarmer: "Demo Farmer",
+          demoAdmin: "Admin Portal",
+          signOut: "Sign Out",
+          dashboard: "Dashboard"
+        },
+        hero: {
+          tagline: "DECENTRALIZED REDUNDANT LOCAL PRODUCE",
+          headline: "Fresh produce, delivered on time — from farms near your kitchen",
+          subheadline: "Instead of relying on a single, distant industrial supplier, Harvest Route pools certified local farms into a coordinated, redundant network. Chef-grade freshness, zero single points of failure, guaranteed delivery.",
+          orderCTA: "Start Ordering Fresh",
+          farmerCTA: "List Your Harvest",
+          statFarms: "48+ Local Farms",
+          statDelivery: "3.8 hr Farm-to-Kitchen",
+          statReliability: "99.4% On-Time Guarantee"
+        },
+        comparison: {
+          title: "Why Single-Supplier Chains Fail Commercial Kitchens",
+          subtitle: "Decentralized multi-farm networks eliminate supply fragility and food waste",
+          col1Title: "One Distant Farm",
+          col1Sub: "The Fragile Industrial Model",
+          col1Point1: "Single farm failure halts your dinner service",
+          col1Point2: "3-5 days in transit, high bruising & spoilage",
+          col1Point3: "Opaque commodity pricing with heavy distributor margins",
+          col2Title: "Harvest Route Local Network",
+          col2Sub: "Decentralized Redundant Infrastructure",
+          col2Point1: "Multiple local growers provide automatic backup coverage",
+          col2Point2: "Picked at sunrise, delivered into prep coolers before lunch",
+          col2Point3: "Transparent itemized costs & 95% net payout to growers",
+          col3Title: "The Redundancy Difference",
+          col3Sub: "Built-In Automated Failover",
+          col3Point1: "Smart algorithm splits orders across 2-4 nearby farms",
+          col3Point2: "Immediate auto-reassignment if frost or pests strike",
+          col3Point3: "Consolidated single vehicle drop-off at your back door"
+        },
+        steps: {
+          badge: "STREAMLINED 4-STEP FULFILLMENT",
+          title: "How It Works: Seed to Service",
+          subtitle: "One unified purchase order. Multiple resilient farms. One consolidated delivery route.",
+          s1Title: "1. Order Placed",
+          s1Desc: "Restaurant selects vegetables, quantity, and prep delivery window in the digital marketplace.",
+          s2Title: "2. Matched to Nearby Farmers",
+          s2Desc: "Our algorithm splits quantities across 2-4 local farms based on distance, stock, and reliability scores.",
+          s3Title: "3. Harvest Confirmed",
+          s3Desc: "Growers receive digital manifests, harvest at dawn, and tag eco-crates for pickup.",
+          s4Title: "4. Consolidated Delivery",
+          s4Desc: "A single temperature-controlled route collects from all contributing farms and delivers in one stop."
+        },
+        benefits: {
+          farmersTitle: "For Regional Farmers",
+          farmersSubtitle: "Grow your craft while our platform handles demand forecasting and logistics.",
+          f1: "Guaranteed steady orders from top independent restaurants",
+          f2: "Fair transparent pricing with 95% net payout disbursed via Stripe",
+          f3: "No middlemen markups or predatory distributor contracts",
+          f4: "Redundancy protection: other farms absorb shortfalls without lost standing",
+          restaurantsTitle: "For Kitchens & Chefs",
+          restaurantsSubtitle: "Peak seasonal quality backed by an unbreakable supply guarantee.",
+          r1: "Morning-picked freshness with maximum nutritional and flavor value",
+          r2: "Zero stockouts: automatic backup farm reassignment protects your menu",
+          r3: "Single consolidated invoice with itemized grower traceability",
+          r4: "Flexible standing & recurring pantry orders with 1-click replenishment"
+        },
+        trust: {
+          title: "Trusted by Top Kitchens & Certified Organic Growers",
+          quote: "Before Harvest Route, a frost or truck breakdown at our distributor meant removing heirloom tomatoes from our dinner menu. Now, our order is covered by three farms within 15 miles. We haven't missed a single crate in 8 months.",
+          author: "Chef Marcus Vance",
+          role: "Executive Chef, The Rustic Hearth"
+        },
+        ctaBanner: {
+          title: "Ready to Upgrade Your Kitchen's Produce Pipeline?",
+          desc: "Join over 130 restaurants and 48 regional growers building a more resilient, fresher local food supply chain.",
+          btnRest: "Join as Restaurant",
+          btnFarm: "Join as Farmer"
+        }
+      },
+      es: {
+        nav: {
+          howItWorks: "Cómo Funciona",
+          forFarmers: "Para Agricultores",
+          forRestaurants: "Para Restaurantes",
+          network: "La Red",
+          contact: "Contacto",
+          joinFarmer: "Unirse como Agricultor",
+          joinRestaurant: "Unirse como Restaurante",
+          demoRestaurant: "Demo Restaurante",
+          demoFarmer: "Demo Agricultor",
+          demoAdmin: "Portal Admin",
+          signOut: "Cerrar Sesión",
+          dashboard: "Panel"
+        },
+        hero: {
+          tagline: "RED AGRÍCOLA LOCAL CON RESPALDO REDUNDANTE",
+          headline: "Productos frescos, entregados a tiempo — desde granjas cercanas a tu cocina",
+          subheadline: "En lugar de depender de un solo proveedor lejano, Harvest Route une granjas locales en una red coordinada y redundante. Frescura inigualable, cero puntos de falla y entrega garantizada.",
+          orderCTA: "Hacer Pedido Fresco",
+          farmerCTA: "Registrar tu Cosecha",
+          statFarms: "48+ Granjas Locales",
+          statDelivery: "3.8 hrs Del Campo a la Cocina",
+          statReliability: "99.4% Puntualidad Garantizada"
+        },
+        comparison: {
+          title: "Por Qué Falla el Modelo Tradicional",
+          subtitle: "Descubre cómo una red descentralizada de granjas resuelve la vulnerabilidad de suministros",
+          col1Title: "Un Proveedor Lejano",
+          col1Sub: "El Viejo Modelo Industrial",
+          col1Point1: "Si una granja falla, se arruina tu menú de la cena",
+          col1Point2: "3-5 días en tránsito, alta merma y deterioro",
+          col1Point3: "Precios opacos con múltiples intermediarios",
+          col2Title: "Red Local Harvest Route",
+          col2Sub: "Infraestructura Local Descentralizada",
+          col2Point1: "Respaldo multicanal asegura 100% de cumplimiento",
+          col2Point2: "Cosechado al amanecer, en tu cocina al mediodía",
+          col2Point3: "Costos desglosados y pago justo directo al agricultor",
+          col3Title: "La Ventaja de la Redundancia",
+          col3Sub: "Motor Automático de Contingencia",
+          col3Point1: "Distribución inteligente del pedido entre 2-4 granjas",
+          col3Point2: "Reasignación inmediata ante imprevistos climáticos",
+          col3Point3: "Una sola furgoneta consolidada hasta la puerta de tu cocina"
+        },
+        steps: {
+          badge: "LOGÍSTICA INTEGRADA EN 4 PASOS",
+          title: "Cómo Funciona: Del Campo a la Mesa",
+          subtitle: "Una sola orden. Múltiples granjas resilientes. Una entrega impecable.",
+          s1Title: "1. Realiza tu Pedido",
+          s1Desc: "El restaurante elige verduras, volumen y horario de entrega en el mercado digital.",
+          s2Title: "2. Asignación a Granjas Cercanas",
+          s2Desc: "El algoritmo divide el pedido entre 2-4 granjas según cercanía, stock y fiabilidad.",
+          s3Title: "3. Cosecha Matutina Confirmada",
+          s3Desc: "Los agricultores reciben la notificación, cosechan al alba y empaquetan en cajas ecológicas.",
+          s4Title: "4. Entrega Consolidada",
+          s4Desc: "Una sola furgoneta climatizada recoge en cada granja y entrega en una sola parada en tu cocina."
+        },
+        benefits: {
+          farmersTitle: "Para Agricultores Locales",
+          farmersSubtitle: "Cultiva con pasión mientras nuestra red garantiza demanda y logística.",
+          f1: "Demanda constante garantizada de los mejores restaurantes",
+          f2: "Precios justos con desembolso del 95% neto vía Stripe",
+          f3: "Sin intermediarios abusivos ni contratos predatorios",
+          f4: "Protección de contingencia: granjas vecinas respaldan cualquier escasez",
+          restaurantsTitle: "Para Cocinas y Chefs",
+          restaurantsSubtitle: "Calidad de temporada con suministro blindado.",
+          r1: "Frescura recogida al amanecer con máxima nutrición y sabor",
+          r2: "Cero desabastecimiento: respaldo automático entre granjas",
+          r3: "Factura única consolidada con trazabilidad completa de cada granja",
+          r4: "Pedidos recurrentes programados con reposición en 1 clic"
+        },
+        trust: {
+          title: "Respaldado por Chefs y Agricultores Sostenibles",
+          quote: "Antes de Harvest Route, una helada en el proveedor significaba quitar platos del menú. Ahora nuestro pedido está protegido por tres granjas a menos de 20 km. En 8 meses nunca nos ha faltado una sola caja.",
+          author: "Marcus Vance",
+          role: "Chef Ejecutivo, The Rustic Hearth"
+        },
+        ctaBanner: {
+          title: "¿Listo para Transformar el Abastecimiento de tu Cocina?",
+          desc: "Únete a más de 130 restaurantes y 48 agricultores locales construyendo una cadena de suministro más fresca y confiable.",
+          btnRest: "Unirse como Restaurante",
+          btnFarm: "Unirse como Agricultor"
+        }
+      },
+      fr: {
+        nav: {
+          howItWorks: "Comment Ça Marche",
+          forFarmers: "Pour les Maraîchers",
+          forRestaurants: "Pour les Restaurants",
+          network: "Le Réseau",
+          contact: "Contact",
+          joinFarmer: "Rejoindre en Maraîcher",
+          joinRestaurant: "Rejoindre en Restaurant",
+          demoRestaurant: "Démo Restaurant",
+          demoFarmer: "Démo Maraîcher",
+          demoAdmin: "Portail Admin",
+          signOut: "Déconnexion",
+          dashboard: "Tableau de Bord"
+        },
+        hero: {
+          tagline: "RÉSEAU AGRICOLE LOCAL À HAUTE RÉSILIENCE",
+          headline: "Produits ultra-frais, livrés à l'heure — par les fermes proches de votre cuisine",
+          subheadline: "Au lieu de dépendre d'une exploitation industrielle éloignée, Harvest Route fédère des producteurs locaux en un réseau coordonné et redondant. Fraîcheur cueillie le matin, zéro rupture, fiabilité absolue.",
+          orderCTA: "Commander Frais",
+          farmerCTA: "Proposer ma Récolte",
+          statFarms: "48+ Maraîchers Locaux",
+          statDelivery: "3.8h De la Ferme à la Cuisine",
+          statReliability: "99.4% Ponctualité Garantie"
+        },
+        comparison: {
+          title: "Pourquoi le Modèle Industriel Échoue",
+          subtitle: "Découvrez la résilience d'un réseau décentralisé de fermes locales",
+          col1Title: "Fournisseur Lointain Unique",
+          col1Sub: "L'Ancien Modèle Grossiste",
+          col1Point1: "La panne d'une ferme paralyse votre carte",
+          col1Point2: "3 à 5 jours de transport, pertes élevées",
+          col1Point3: "Marges opaques captées par les intermédiaires",
+          col2Title: "Réseau Local Harvest Route",
+          col2Sub: "Infrastructure Décentralisée",
+          col2Point1: "La redondance multi-fermes garantit 100% des livraisons",
+          col2Point2: "Récolté à l'aube, en cuisine pour le service du midi",
+          col2Point3: "Transparence totale et rémunération équitable du maraîcher",
+          col3Title: "La Différence de Redondance",
+          col3Sub: "Moteur de Relais Automatique",
+          col3Point1: "L'algorithme répartit la commande sur 2 à 4 fermes proches",
+          col3Point2: "Bascule instantanée sur un producteur relais en cas d'aléa",
+          col3Point3: "Une seule camionnette consolidée devant votre restaurant"
+        },
+        steps: {
+          badge: "LOGISTIQUE OPTIMISÉE",
+          title: "Comment Ça Marche : 4 Étapes",
+          subtitle: "Un seul bon de commande. Plusieurs fermes solidaires. Une livraison unique.",
+          s1Title: "1. Commande en Ligne",
+          s1Desc: "Le chef sélectionne ses légumes, volumes et créneau de préparation.",
+          s2Title: "2. Répartition Intelligente",
+          s2Desc: "L'algorithme ventile la commande entre 2 et 4 maraîchers voisins selon stocks et proximité.",
+          s3Title: "3. Cueillette Matinale",
+          s3Desc: "Les producteurs récoltent aux premières lueurs et préparent les cagettes fraîches.",
+          s4Title: "4. Livraison Consolidée",
+          s4Desc: "Une camionnette unique ramasse les lots et livre directement à votre porte."
+        },
+        benefits: {
+          farmersTitle: "Pour les Producteurs Locaux",
+          farmersSubtitle: "Cultivez l'excellence pendant que notre réseau sécurise vos débouchés.",
+          f1: "Commandes régulières garanties auprès des meilleures tables",
+          f2: "Rémunération juste avec versement net de 95% via Stripe",
+          f3: "Zéro intermédiaire prédateur ni décote injustifiée",
+          f4: "Sécurité solidaire : le réseau absorbe les imprévus climatiques",
+          restaurantsTitle: "Pour les Cuisines et Chefs",
+          restaurantsSubtitle: "Qualité d'exception saisonnière sans aucun risque de rupture.",
+          r1: "Fraîcheur cueillie le jour même, qualités gustatives maximales",
+          r2: "Zéro rupture : relais automatique entre fermes du réseau",
+          r3: "Facturation unique et détaillée avec traçabilité par ferme",
+          r4: "Commandes récurrentes automatiques en 1 clic"
+        },
+        trust: {
+          title: "Plébiscité par les Chefs et Maraîchers",
+          quote: "Avant Harvest Route, un aléa chez notre grossiste nous forçait à changer nos plats du jour. Aujourd'hui, trois fermes à moins de 25 km sécurisent nos légumes. Zéro cagette manquée en 8 mois.",
+          author: "Marcus Vance",
+          role: "Chef Exécutif, The Rustic Hearth"
+        },
+        ctaBanner: {
+          title: "Prêt à Sécuriser les Approvisionnements de Votre Cuisine ?",
+          desc: "Rejoignez 130 restaurants et 48 maraîchers locaux pour une chaîne d'approvisionnement plus fraîche et fiable.",
+          btnRest: "Rejoindre en Restaurant",
+          btnFarm: "Rejoindre en Maraîcher"
+        }
+      },
+      it: {
+        nav: {
+          howItWorks: "Come Funziona",
+          forFarmers: "Per gli Agricoltori",
+          forRestaurants: "Per i Ristoranti",
+          network: "La Rete",
+          contact: "Contatto",
+          joinFarmer: "Unisciti come Agricoltore",
+          joinRestaurant: "Unisciti come Ristorante",
+          demoRestaurant: "Demo Ristorante",
+          demoFarmer: "Demo Agricoltore",
+          demoAdmin: "Portale Admin",
+          signOut: "Esci",
+          dashboard: "Pannello"
+        },
+        hero: {
+          tagline: "RETE AGRICOLA LOCALE CON RIDONDANZA",
+          headline: "Prodotti freschi, consegnati puntuali — dai campi vicini alla tua cucina",
+          subheadline: "Invece di dipendere da un unico grande fornitore lontano, Harvest Route unisce gli agricoltori locali in una rete coordinata e ridondante. Massima freschezza, zero punti di rottura, fornitura garantita.",
+          orderCTA: "Ordina Prodotti Freschi",
+          farmerCTA: "Vendi il Tuo Raccolto",
+          statFarms: "48+ Fattorie Locali",
+          statDelivery: "3.8 ore Dal Campo alla Cucina",
+          statReliability: "99.4% Puntualità Garantita"
+        },
+        comparison: {
+          title: "Perché la Filiera Unica Tradizionale Fallisce",
+          subtitle: "Scopri come una rete decentralizzata elimina le vulnerabilità di approvvigionamento",
+          col1Title: "Fornitore Industriale Lontano",
+          col1Sub: "Il Vecchio Modello all'Ingrosso",
+          col1Point1: "Un singolo guasto blocca il menù del ristorante",
+          col1Point2: "3-5 giorni di viaggio, deperimento rapido",
+          col1Point3: "Prezzi opachi con molteplici intermediari",
+          col2Title: "Rete Locale Harvest Route",
+          col2Sub: "Infrastruttura Locale Decentralizzata",
+          col2Point1: "La copertura multi-fattoria assicura il 100% degli ordini",
+          col2Point2: "Raccolto all'alba, in cucina per il pranzo",
+          col2Point3: "Trasparenza totale e compenso equo per i coltivatori",
+          col3Title: "Il Vantaggio della Ridondanza",
+          col3Sub: "Motore Automatico di Backup",
+          col3Point1: "L'algoritmo ripartisce l'ordine su 2-4 fattorie vicine",
+          col3Point2: "Passaggio immediato al produttore di riserva in caso di imprevisti",
+          col3Point3: "Unico furgone refrigerato fino alla porta della tua cucina"
+        },
+        steps: {
+          badge: "LOGISTICA INTEGRATA",
+          title: "Come Funziona: 4 Semplici Passaggi",
+          subtitle: "Un solo ordine. Molteplici fattorie resilienti. Una consegna perfetta.",
+          s1Title: "1. Effettua l'Ordine",
+          s1Desc: "Il ristorante sceglie ortaggi, quantità e orario di consegna.",
+          s2Title: "2. Assegnazione alla Rete",
+          s2Desc: "L'algoritmo suddivide l'ordine tra 2-4 produttori vicini per vicinanza e affidabilità.",
+          s3Title: "3. Raccolta all'Alba",
+          s3Desc: "I coltivatori ricevono l'ordine, raccolgono la mattina e preparano le cassette.",
+          s4Title: "4. Consegna Consolidata",
+          s4Desc: "Un unico mezzo ritira da ogni fattoria e consegna direttamente in cucina."
+        },
+        benefits: {
+          farmersTitle: "Per gli Agricoltori Locali",
+          farmersSubtitle: "Coltiva con passione mentre la nostra rete garantisce vendite e logistica.",
+          f1: "Ordini continuativi garantiti dai migliori ristoranti",
+          f2: "Prezzi equi con liquidazione netta del 95% via Stripe",
+          f3: "Nessun intermediario speculativo o contratti ingiusti",
+          f4: "Sicurezza di rete: gli altri produttori assorbono eventuali imprevisti",
+          restaurantsTitle: "Per Cucine e Chef",
+          restaurantsSubtitle: "Qualità stagionale ai massimi livelli con fornitura blindata.",
+          r1: "Freschezza colta in giornata con sapore e nutrienti intatti",
+          r2: "Zero esaurimenti: riserva automatica tra le fattorie della rete",
+          r3: "Fattura unica e dettagliata con tracciabilità per singola fattoria",
+          r4: "Ordini periodici programmati con riordino in 1 clic"
+        },
+        trust: {
+          title: "Scelto da Chef e Agricoltori Sostenibili",
+          quote: "Prima di Harvest Route, una gelata significava cancellare piatti dal menù. Ora tre fattorie a meno di 20 km proteggono la nostra cucina. In 8 mesi non abbiamo perso una sola cassetta.",
+          author: "Marcus Vance",
+          role: "Executive Chef, The Rustic Hearth"
+        },
+        ctaBanner: {
+          title: "Pronto a Potenziare gli Approvvigionamenti della Tua Cucina?",
+          desc: "Unisciti a oltre 130 ristoranti e 48 coltivatori locali per una filiera più fresca, etica e sicura.",
+          btnRest: "Unisciti come Ristorante",
+          btnFarm: "Unisciti come Agricoltore"
+        }
+      }
+    };
+
+    // --- INITIAL MOCK DATA ---
+    const DEMO_USERS = {
+      restaurant: {
+        id: "usr_rest_1",
+        email: "chef@rustichearth.com",
+        role: "restaurant",
+        name: "Chef Marcus Vance",
+        organization: "The Rustic Hearth",
+        address: "442 Market Street, Downtown",
+        cuisine: "Farm-to-Table French & Italian",
+        volume: "65 crates/week",
+        rating: 4.9
+      },
+      farmer: {
+        id: "usr_farm_1",
+        email: "elena@greenmeadow.com",
+        role: "farmer",
+        name: "Elena Rostova",
+        organization: "Green Meadow Organics",
+        address: "1280 County Road 4, Maple Ridge (6.2 miles)",
+        capacity: "1,200 kg/week",
+        crops: ["Heirloom Tomatoes", "Organic Kale", "Baby Spinach", "Genovese Basil"],
+        onTimeRate: 99.4,
+        qualityRating: 4.95,
+        totalEarnings: 24650.00,
+        stripeConnected: true
+      },
+      admin: {
+        id: "usr_admin_1",
+        email: "coordinator@harvestroute.com",
+        role: "admin",
+        name: "Platform Dispatcher",
+        organization: "Harvest Route Central Logistics"
+      }
+    };
+
+    const INITIAL_PRODUCE = [
+      {
+        id: "prod_1",
+        name: "Cherokee Purple Heirloom Tomatoes",
+        category: "Vine Produce",
+        unit: "kg",
+        description: "Rich complex sweetness, thin skin, harvested at peak aroma.",
+        imageUrl: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80",
+        farmPrices: [
+          { farmerId: "usr_farm_1", farmName: "Green Meadow Organics", price: 4.80, stock: 180, harvestReady: "Today (Picked 6 AM)", distance: "6.2 mi" },
+          { farmerId: "usr_farm_2", farmName: "Sunrise Acres Produce", price: 4.50, stock: 120, harvestReady: "Tomorrow Morning", distance: "9.1 mi" },
+          { farmerId: "usr_farm_4", farmName: "Riverbend Co-Op (Backup)", price: 4.20, stock: 450, harvestReady: "Today Afternoon", distance: "15.8 mi" }
+        ]
+      },
+      {
+        id: "prod_2",
+        name: "Tuscan Lacinato Dinosaur Kale",
+        category: "Greens",
+        unit: "kg",
+        description: "Deep emerald crinkled leaves with sweet tender ribs. Organic certified.",
+        imageUrl: "https://images.unsplash.com/photo-1524179091875-bf99a9a6fa57?auto=format&fit=crop&w=600&q=80",
+        farmPrices: [
+          { farmerId: "usr_farm_1", farmName: "Green Meadow Organics", price: 3.40, stock: 95, harvestReady: "Today Morning", distance: "6.2 mi" },
+          { farmerId: "usr_farm_3", farmName: "Oakwood Micro-Farms", price: 3.60, stock: 110, harvestReady: "Today", distance: "12.4 mi" },
+          { farmerId: "usr_farm_4", farmName: "Riverbend Co-Op (Backup)", price: 3.10, stock: 300, harvestReady: "Tomorrow", distance: "15.8 mi" }
+        ]
+      },
+      {
+        id: "prod_3",
+        name: "French Golden Honey Carrots",
+        category: "Root Vegetables",
+        unit: "kg",
+        description: "High natural brix sugar, crunchy, washed and bunched with crisp green tops.",
+        imageUrl: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&w=600&q=80",
+        farmPrices: [
+          { farmerId: "usr_farm_2", farmName: "Sunrise Acres Produce", price: 2.90, stock: 260, harvestReady: "Today", distance: "9.1 mi" },
+          { farmerId: "usr_farm_4", farmName: "Riverbend Co-Op (Backup)", price: 2.65, stock: 500, harvestReady: "Today", distance: "15.8 mi" }
+        ]
+      },
+      {
+        id: "prod_4",
+        name: "Chef's Artisanal Microgreens Blend",
+        category: "Microgreens",
+        unit: "crate (10 trays)",
+        description: "Pea shoots, red amaranth, micro-cilantro, and spicy radish.",
+        imageUrl: "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80",
+        farmPrices: [
+          { farmerId: "usr_farm_3", farmName: "Oakwood Micro-Farms", price: 42.00, stock: 45, harvestReady: "Harvest on Order", distance: "12.4 mi" },
+          { farmerId: "usr_farm_1", farmName: "Green Meadow Organics", price: 44.50, stock: 25, harvestReady: "Today 8 AM", distance: "6.2 mi" }
+        ]
+      },
+      {
+        id: "prod_5",
+        name: "Fresh Genovese Sweet Basil",
+        category: "Herbs",
+        unit: "kg",
+        description: "Unbruised whole aromatic leaves, cut immediately prior to packing.",
+        imageUrl: "https://images.unsplash.com/photo-1618375531912-867984bdfd87?auto=format&fit=crop&w=600&q=80",
+        farmPrices: [
+          { farmerId: "usr_farm_1", farmName: "Green Meadow Organics", price: 12.50, stock: 40, harvestReady: "Cut to order", distance: "6.2 mi" },
+          { farmerId: "usr_farm_3", farmName: "Oakwood Micro-Farms", price: 13.00, stock: 35, harvestReady: "Today", distance: "12.4 mi" }
+        ]
+      },
+      {
+        id: "prod_6",
+        name: "Yukon Gold Butter Potatoes",
+        category: "Root Vegetables",
+        unit: "crate (20 kg)",
+        description: "Creamy texture, uniform size, perfect for roast dishes and fine purée.",
+        imageUrl: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=600&q=80",
+        farmPrices: [
+          { farmerId: "usr_farm_2", farmName: "Sunrise Acres Produce", price: 28.00, stock: 75, harvestReady: "Cured & Ready", distance: "9.1 mi" },
+          { farmerId: "usr_farm_4", farmName: "Riverbend Co-Op (Backup)", price: 26.50, stock: 150, harvestReady: "In storage", distance: "15.8 mi" }
+        ]
+      }
+    ];
+
+    const INITIAL_ORDERS = [
+      {
+        id: "ORD-9402",
+        restaurantId: "usr_rest_1",
+        restaurantName: "The Rustic Hearth",
+        status: "in_transit",
+        stepIndex: 3,
+        deliveryDate: "Today",
+        deliveryTimeSlot: "11:30 AM - 1:00 PM (Prep Window)",
+        totalAmount: 384.50,
+        paymentStatus: "paid_stripe",
+        redundancyLevel: "3 Local Farms (Triple Redundancy)",
+        routeOptimization: "Route Alpha: Green Meadow (Stop 1) → Sunrise Acres (Stop 2) → Oakwood (Stop 3) → Kitchen Drop-off",
+        estimatedArrival: "12:15 PM",
+        contributingFarmers: [
+          { farmerId: "usr_farm_1", farmName: "Green Meadow Organics", items: "Heirloom Tomatoes (35 kg), Basil (4 kg)", amount: 218.00, status: "harvested_loaded" },
+          { farmerId: "usr_farm_2", farmName: "Sunrise Acres Produce", items: "Golden Carrots (25 kg), Yukon Potatoes (1 crate)", amount: 100.50, status: "harvested_loaded" },
+          { farmerId: "usr_farm_3", farmName: "Oakwood Micro-Farms", items: "Artisanal Microgreens (1 crate)", amount: 42.00, status: "harvested_loaded" }
+        ],
+        itemsList: [
+          { name: "Cherokee Purple Heirloom Tomatoes", qty: 35, unit: "kg", price: 4.80, allocatedFarm: "Green Meadow Organics" },
+          { name: "Fresh Genovese Sweet Basil", qty: 4, unit: "kg", price: 12.50, allocatedFarm: "Green Meadow Organics" },
+          { name: "French Golden Honey Carrots", qty: 25, unit: "kg", price: 2.90, allocatedFarm: "Sunrise Acres Produce" },
+          { name: "Yukon Gold Butter Potatoes", qty: 1, unit: "crate (20 kg)", price: 28.00, allocatedFarm: "Sunrise Acres Produce" },
+          { name: "Chef's Artisanal Microgreens Blend", qty: 1, unit: "crate (10 trays)", price: 42.00, allocatedFarm: "Oakwood Micro-Farms" }
+        ]
+      },
+      {
+        id: "ORD-9388",
+        restaurantId: "usr_rest_1",
+        restaurantName: "The Rustic Hearth",
+        status: "delivered",
+        stepIndex: 4,
+        deliveryDate: "Yesterday",
+        deliveryTimeSlot: "11:00 AM",
+        totalAmount: 295.00,
+        paymentStatus: "paid_stripe",
+        redundancyLevel: "2 Local Farms",
+        routeOptimization: "Consolidated Eco Van #4 (18.2 miles total)",
+        contributingFarmers: [
+          { farmerId: "usr_farm_1", farmName: "Green Meadow Organics", items: "Lacinato Kale (40 kg)", amount: 136.00, status: "delivered" },
+          { farmerId: "usr_farm_2", farmName: "Sunrise Acres Produce", items: "Potatoes & Carrots", amount: 159.00, status: "delivered" }
+        ],
+        itemsList: [
+          { name: "Tuscan Lacinato Dinosaur Kale", qty: 40, unit: "kg", price: 3.40, allocatedFarm: "Green Meadow Organics" },
+          { name: "French Golden Honey Carrots", qty: 30, unit: "kg", price: 2.90, allocatedFarm: "Sunrise Acres Produce" },
+          { name: "Yukon Gold Butter Potatoes", qty: 2.5, unit: "crate", price: 28.00, allocatedFarm: "Sunrise Acres Produce" }
+        ]
+      }
+    ];
+
+    // --- MAIN APP COMPONENT ---
+    function App() {
+      const [lang, setLang] = useState("en");
+      const [currentUser, setCurrentUser] = useState(null); // null = visitor on landing page
+      const [activeTab, setActiveTab] = useState("order"); // for dashboards
+      const [authModalOpen, setAuthModalOpen] = useState(false);
+      const [authRole, setAuthRole] = useState("restaurant");
+      const [isSignUp, setIsSignUp] = useState(false);
+
+      // State stores
+      const [produceList, setProduceList] = useState(INITIAL_PRODUCE);
+      const [orders, setOrders] = useState(INITIAL_ORDERS);
+      const [cart, setCart] = useState([
+        { produceId: "prod_1", name: "Cherokee Purple Heirloom Tomatoes", qty: 30, unit: "kg", price: 4.80 },
+        { produceId: "prod_2", name: "Tuscan Lacinato Dinosaur Kale", qty: 15, unit: "kg", price: 3.40 }
+      ]);
+      const [selectedCategory, setSelectedCategory] = useState("All");
+      const [orderTimeSlot, setOrderTimeSlot] = useState("11:00 AM - 1:00 PM (Kitchen Prep Window)");
+      const [orderDeliveryDate, setOrderDeliveryDate] = useState("Tomorrow");
+      const [checkoutModalOpen, setCheckoutModalOpen] = useState(false);
+      const [reviewModalOrder, setReviewModalOrder] = useState(null);
+
+      // Notifications
+      const [notifications, setNotifications] = useState([
+        {
+          id: "notif-1",
+          title: "Van Out For Delivery",
+          message: "Consolidated van has collected harvest from Green Meadow and Oakwood. En route to The Rustic Hearth.",
+          time: "8 mins ago",
+          read: false,
+          type: "transit"
+        },
+        {
+          id: "notif-2",
+          title: "Harvest Allocation Scheduled",
+          message: "Green Meadow Organics confirmed harvest of 35 kg Heirloom Tomatoes for Order #ORD-9402.",
+          time: "1 hour ago",
+          read: true,
+          type: "confirmed"
+        }
+      ]);
+      const [notifDrawerOpen, setNotifDrawerOpen] = useState(false);
+
+      // Recurring orders
+      const [recurringOrders, setRecurringOrders] = useState([
+        {
+          id: "REC-101",
+          title: "Tuesday & Friday Morning Pantry Staples",
+          frequency: "Weekly (Tue, Fri)",
+          items: "Heirloom Tomatoes (30 kg), Lacinato Kale (20 kg), Basil (3 kg)",
+          active: true,
+          nextDate: "Friday, Oct 10"
+        }
+      ]);
+
+      const t = TRANSLATIONS[lang];
+
+      // Quick Demo Login Helper
+      const handleDemoLogin = (role) => {
+        setCurrentUser(DEMO_USERS[role]);
+        setActiveTab("order");
+        setAuthModalOpen(false);
+      };
+
+      const handleSignOut = () => {
+        setCurrentUser(null);
+      };
+
+      // Add Notification
+      const pushNotification = (title, message, type = "info") => {
+        const newN = {
+          id: `notif-${Date.now()}`,
+          title,
+          message,
+          time: "Just now",
+          read: false,
+          type
+        };
+        setNotifications(prev => [newN, ...prev]);
+      };
+
+      // Cart Helpers
+      const addToCart = (prod) => {
+        setCart(prev => {
+          const exists = prev.find(item => item.produceId === prod.id);
+          if (exists) {
+            return prev.map(item => item.produceId === prod.id ? { ...item, qty: item.qty + 5 } : item);
+          }
+          return [...prev, { produceId: prod.id, name: prod.name, qty: 10, unit: prod.unit, price: prod.farmPrices[0].price }];
+        });
+        pushNotification("Cart Updated", `Added ${prod.name} to order.`);
+      };
+
+      const updateCartQty = (prodId, delta) => {
+        setCart(prev => prev.map(item => {
+          if (item.produceId === prodId) {
+            const newQ = Math.max(1, item.qty + delta);
+            return { ...item, qty: newQ };
+          }
+          return item;
+        }).filter(item => item.qty > 0));
+      };
+
+      const removeFromCart = (prodId) => {
+        setCart(prev => prev.filter(item => item.produceId !== prodId));
+      };
+
+      const cartTotal = useMemo(() => {
+        return cart.reduce((sum, item) => sum + (item.qty * item.price), 0);
+      }, [cart]);
+
+      // Matching preview calculation (Core Engine Simulator)
+      const matchingPreview = useMemo(() => {
+        if (!cart.length) return null;
+        
+        const splitFarmers = [
+          { name: "Green Meadow Organics", distance: "6.2 mi", onTime: "99.4%", rating: 4.9, allocatedItems: [] },
+          { name: "Sunrise Acres Produce", distance: "9.1 mi", onTime: "97.8%", rating: 4.8, allocatedItems: [] }
+        ];
+
+        let totalEst = 0;
+        cart.forEach((item, index) => {
+          totalEst += item.qty * item.price;
+          if (item.qty >= 20) {
+            const half1 = Math.ceil(item.qty * 0.6);
+            const half2 = item.qty - half1;
+            splitFarmers[0].allocatedItems.push(`${item.name} (${half1} ${item.unit})`);
+            splitFarmers[1].allocatedItems.push(`${item.name} (${half2} ${item.unit})`);
+          } else {
+            const farmIdx = index % 2;
+            splitFarmers[farmIdx].allocatedItems.push(`${item.name} (${item.qty} ${item.unit})`);
+          }
+        });
+
+        return {
+          farms: splitFarmers.filter(f => f.allocatedItems.length > 0),
+          standbyFarm: "Riverbend Co-Op (15.8 mi, 500+ kg standby capacity)",
+          totalAmount: Math.round(totalEst * 100) / 100,
+          redundancyRank: "Dual-Farm Guaranteed Fulfillment",
+          routeSummary: "Van Route: Green Meadow → Sunrise Acres → Downtown Kitchen Drop (1 Stop)"
+        };
+      }, [cart]);
+
+      // Complete Order via Stripe Simulator
+      const completeOrder = (testCard) => {
+        const newOrderId = `ORD-${Math.floor(1000 + Math.random() * 9000)}`;
+        const contributing = matchingPreview ? matchingPreview.farms.map((f, i) => ({
+          farmerId: i === 0 ? "usr_farm_1" : "usr_farm_2",
+          farmName: f.name,
+          items: f.allocatedItems.join(", "),
+          amount: Math.round((cartTotal * (i === 0 ? 0.6 : 0.4)) * 100) / 100,
+          status: "confirmed_harvest"
+        })) : [];
+
+        const newOrder = {
+          id: newOrderId,
+          restaurantId: currentUser?.id || "usr_rest_1",
+          restaurantName: currentUser?.organization || "The Rustic Hearth",
+          status: "confirmed",
+          stepIndex: 1, // 1: Confirmed, 2: Harvesting, 3: In Transit, 4: Delivered
+          deliveryDate: orderDeliveryDate,
+          deliveryTimeSlot: orderTimeSlot,
+          totalAmount: Math.round(cartTotal * 100) / 100,
+          paymentStatus: "paid_stripe",
+          redundancyLevel: `${contributing.length} Local Farms (Active Redundancy)`,
+          routeOptimization: "Consolidated Route: Green Meadow → Sunrise Acres → Prep Kitchen",
+          contributingFarmers: contributing,
+          itemsList: cart.map(c => ({
+            name: c.name,
+            qty: c.qty,
+            unit: c.unit,
+            price: c.price,
+            allocatedFarm: contributing[0]?.farmName || "Green Meadow"
+          }))
+        };
+
+        setOrders(prev => [newOrder, ...prev]);
+        setCart([]);
+        setCheckoutModalOpen(false);
+        setActiveTab("tracker");
+        pushNotification("Order Secured & Paid", `Order #${newOrderId} split across ${contributing.length} farms. Stripe test card •••• ${testCard.slice(-4)} charged $${newOrder.totalAmount}.`, "payment");
+      };
+
+      // Progress Order Status (Live Simulation for demo)
+      const advanceOrderStatus = (orderId) => {
+        setOrders(prev => prev.map(o => {
+          if (o.id === orderId) {
+            const nextStep = o.stepIndex < 4 ? o.stepIndex + 1 : 4;
+            const statusMap = { 1: "confirmed", 2: "harvesting", 3: "in_transit", 4: "delivered" };
+            const nextStatus = statusMap[nextStep];
+            pushNotification(`Order #${orderId} Updated`, `Status progressed to ${nextStatus.toUpperCase().replace('_', ' ')}.`);
+            return { ...o, stepIndex: nextStep, status: nextStatus };
+          }
+          return o;
+        }));
+      };
+
+      // Simulate Crop Shortfall & Instant Failover to Backup Farm
+      const triggerSimulatedShortfall = (orderId, farmerName) => {
+        setOrders(prev => prev.map(o => {
+          if (o.id === orderId) {
+            pushNotification(
+              "🛡️ Redundancy Protection Triggered",
+              `Alert: ${farmerName} flagged morning frost. Matching engine instantly transferred quota to Riverbend Co-Op. Delivery ETA unaffected!`,
+              "warning"
+            );
+            return {
+              ...o,
+              redundancyLevel: "Failover Activated: Riverbend Co-Op Absorbed Shortfall",
+              routeOptimization: "Rerouted: Riverbend Standby Hub → Kitchen Drop (On-Time Guarantee)"
+            };
+          }
+          return o;
+        }));
+      };
+
+      return (
+        <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#2A1E15]">
+          {/* TOP DEMO ANNOUNCER BAR */}
+          <div className="bg-forest-900 text-earth-100 text-xs px-4 py-2 border-b border-forest-800 flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span className="font-semibold text-harvest-300">Harvest Route Live Platform:</span>
+              <span>Decentralized Multi-Farmer Network with Automated Redundancy Failover</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-earth-300">Instant Demo Access:</span>
+              <button onClick={() => handleDemoLogin('restaurant')} className="px-2 py-0.5 rounded bg-forest-800 hover:bg-forest-700 text-harvest-200 border border-forest-600 font-medium transition">👨‍🍳 Demo Restaurant</button>
+              <button onClick={() => handleDemoLogin('farmer')} className="px-2 py-0.5 rounded bg-forest-800 hover:bg-forest-700 text-harvest-200 border border-forest-600 font-medium transition">🌾 Demo Farmer</button>
+              <button onClick={() => handleDemoLogin('admin')} className="px-2 py-0.5 rounded bg-forest-800 hover:bg-forest-700 text-harvest-200 border border-forest-600 font-medium transition">🛡️ Demo Admin</button>
+            </div>
+          </div>
+
+          {/* MAIN NAVBAR */}
+          <header className="sticky top-0 z-40 bg-[#FAF7F2]/95 backdrop-blur border-b border-earth-200 shadow-sm">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+              {/* BRAND LOGO */}
+              <div className="flex items-center gap-3 cursor-pointer" onClick={() => setCurrentUser(null)}>
+                <div className="w-11 h-11 rounded-xl bg-forest-800 text-harvest-300 flex items-center justify-center shadow-inner">
+                  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+                    <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+                  </svg>
+                </div>
+                <div>
+                  <span className="font-serif text-2xl font-bold tracking-tight text-forest-950 block leading-none">Harvest Route</span>
+                  <span className="text-[10px] tracking-widest uppercase font-semibold text-earth-500">Farm Network Redundancy</span>
+                </div>
+              </div>
+
+              {/* NAV LINKS (Visible on Landing) */}
+              {!currentUser && (
+                <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-forest-900">
+                  <a href="#how-it-works" className="hover:text-forest-600 transition">{t.nav.howItWorks}</a>
+                  <a href="#comparison" className="hover:text-forest-600 transition">Network vs Monolith</a>
+                  <a href="#benefits" className="hover:text-forest-600 transition">{t.nav.forRestaurants}</a>
+                  <a href="#benefits" className="hover:text-forest-600 transition">{t.nav.forFarmers}</a>
+                  <a href="#contact" className="hover:text-forest-600 transition">{t.nav.contact}</a>
+                </nav>
+              )}
+
+              {/* USER STATUS / LOGGED IN CONTROLS */}
+              {currentUser && (
+                <div className="flex items-center gap-3">
+                  <div className="hidden sm:flex items-center gap-2 bg-earth-100 px-3 py-1.5 rounded-full border border-earth-300 text-xs">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span className="font-bold text-forest-900 capitalize">{currentUser.role}:</span>
+                    <span className="text-earth-700 truncate max-w-[150px]">{currentUser.organization || currentUser.name}</span>
+                  </div>
+                  <button 
+                    onClick={() => setActiveTab("order")} 
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${currentUser.role === 'restaurant' ? 'bg-forest-800 text-white' : 'text-forest-800 hover:bg-earth-200'}`}
+                  >
+                    {t.nav.dashboard}
+                  </button>
+                </div>
+              )}
+
+              {/* ACTIONS: LANGUAGE SELECTOR + NOTIFICATIONS + AUTH */}
+              <div className="flex items-center gap-3">
+                {/* LANGUAGE SELECTOR */}
+                <div className="relative">
+                  <select 
+                    value={lang} 
+                    onChange={(e) => setLang(e.target.value)}
+                    className="bg-earth-100 border border-earth-300 text-forest-900 text-xs rounded-lg px-2.5 py-1.5 font-medium focus:outline-none focus:ring-2 focus:ring-forest-600"
+                  >
+                    <option value="en">🇺🇸 EN</option>
+                    <option value="es">🇪🇸 ES</option>
+                    <option value="fr">🇫🇷 FR</option>
+                    <option value="it">🇮🇹 IT</option>
+                  </select>
+                </div>
+
+                {/* NOTIFICATIONS BELL */}
+                <button 
+                  onClick={() => setNotifDrawerOpen(!notifDrawerOpen)} 
+                  className="relative p-2 rounded-lg bg-earth-100 hover:bg-earth-200 text-forest-900 border border-earth-300 transition"
+                  title="Notifications & SMS Alerts"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                  {notifications.filter(n => !n.read).length > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-600 text-[10px] font-bold text-white flex items-center justify-center">
+                      {notifications.filter(n => !n.read).length}
+                    </span>
+                  )}
+                </button>
+
+                {/* AUTH BUTTONS */}
+                {!currentUser ? (
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={() => { setAuthRole("farmer"); setIsSignUp(true); setAuthModalOpen(true); }}
+                      className="hidden sm:inline-flex px-3.5 py-2 text-xs font-semibold rounded-lg text-forest-800 bg-earth-200 hover:bg-earth-300 transition"
+                    >
+                      {t.nav.joinFarmer}
+                    </button>
+                    <button 
+                      onClick={() => { setAuthRole("restaurant"); setIsSignUp(true); setAuthModalOpen(true); }}
+                      className="px-4 py-2 text-xs font-semibold rounded-lg bg-forest-800 hover:bg-forest-900 text-earth-50 shadow-sm transition"
+                    >
+                      {t.nav.joinRestaurant}
+                    </button>
+                  </div>
+                ) : (
+                  <button 
+                    onClick={handleSignOut}
+                    className="px-3 py-1.5 text-xs font-medium rounded-lg text-earth-700 hover:text-earth-900 hover:bg-earth-200 transition"
+                  >
+                    {t.nav.signOut}
+                  </button>
+                )}
+              </div>
+            </div>
+          </header>
+
+          {/* NOTIFICATION DRAWER / MODAL */}
+          {notifDrawerOpen && (
+            <div className="fixed inset-0 z-50 overflow-hidden bg-black/40 backdrop-blur-sm flex justify-end" onClick={() => setNotifDrawerOpen(false)}>
+              <div className="w-full max-w-md bg-[#FAF7F2] h-full shadow-2xl p-6 overflow-y-auto" onClick={e => e.stopPropagation()}>
+                <div className="flex items-center justify-between pb-4 border-b border-earth-300">
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-full bg-forest-600"></span>
+                    <h3 className="font-serif text-lg font-bold text-forest-950">Dispatches & Alerts</h3>
+                  </div>
+                  <button onClick={() => setNotifDrawerOpen(false)} className="text-earth-500 hover:text-earth-800 text-lg">&times;</button>
+                </div>
+                <div className="mt-4 space-y-3">
+                  {notifications.map(n => (
+                    <div key={n.id} className="p-3.5 rounded-xl bg-white border border-earth-200 shadow-sm">
+                      <div className="flex items-center justify-between text-xs text-earth-500 mb-1">
+                        <span className="font-semibold text-forest-700">{n.title}</span>
+                        <span>{n.time}</span>
+                      </div>
+                      <p className="text-xs text-earth-800 leading-relaxed">{n.message}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-6 pt-4 border-t border-earth-300">
+                  <button 
+                    onClick={() => {
+                      pushNotification(
+                        "SMS Simulated to Kitchen", 
+                        "Chef Marcus: Driver picked up crate 4 at Sunrise Acres. On-time window 12:15 PM confirmed.",
+                        "sms"
+                      );
+                    }}
+                    className="w-full py-2 bg-forest-800 hover:bg-forest-900 text-white rounded-lg text-xs font-semibold transition"
+                  >
+                    + Simulate Automated SMS Delivery Alert
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* MAIN VIEW CONTROLLER: LANDING PAGE OR ROLE DASHBOARDS */}
+          {!currentUser ? (
+            <LandingPageView 
+              t={t} 
+              onDemoLogin={handleDemoLogin} 
+              onOpenAuth={(role, signup) => { setAuthRole(role); setIsSignUp(signup); setAuthModalOpen(true); }}
+            />
+          ) : currentUser.role === 'restaurant' ? (
+            <RestaurantDashboardView 
+              user={currentUser}
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              produceList={produceList}
+              cart={cart}
+              addToCart={addToCart}
+              updateCartQty={updateCartQty}
+              removeFromCart={removeFromCart}
+              cartTotal={cartTotal}
+              matchingPreview={matchingPreview}
+              orderTimeSlot={orderTimeSlot}
+              setOrderTimeSlot={setOrderTimeSlot}
+              orderDeliveryDate={orderDeliveryDate}
+              setOrderDeliveryDate={setOrderDeliveryDate}
+              orders={orders}
+              recurringOrders={recurringOrders}
+              setRecurringOrders={setRecurringOrders}
+              onOpenCheckout={() => setCheckoutModalOpen(true)}
+              onAdvanceStatus={advanceOrderStatus}
+              onSimulateShortfall={triggerSimulatedShortfall}
+            />
+          ) : currentUser.role === 'farmer' ? (
+            <FarmerDashboardView 
+              user={currentUser}
+              orders={orders}
+              produceList={produceList}
+              onAddProduce={(newP) => setProduceList(prev => [newP, ...prev])}
+              onSimulateShortfall={triggerSimulatedShortfall}
+              onAdvanceStatus={advanceOrderStatus}
+            />
+          ) : (
+            <AdminDashboardView 
+              orders={orders}
+              farmers={[DEMO_USERS.farmer]}
+              onAdvanceStatus={advanceOrderStatus}
+              onSimulateShortfall={triggerSimulatedShortfall}
+            />
+          )}
+
+          {/* AUTH MODAL */}
+          {authModalOpen && (
+            <AuthModal 
+              isOpen={authModalOpen}
+              onClose={() => setAuthModalOpen(false)}
+              role={authRole}
+              setRole={setAuthRole}
+              isSignUp={isSignUp}
+              setIsSignUp={setIsSignUp}
+              onSuccess={(user) => { setCurrentUser(user); setAuthModalOpen(false); }}
+              onDemoLogin={handleDemoLogin}
+            />
+          )}
+
+          {/* STRIPE CHECKOUT MODAL */}
+          {checkoutModalOpen && (
+            <StripeCheckoutModal 
+              isOpen={checkoutModalOpen}
+              onClose={() => setCheckoutModalOpen(false)}
+              cartTotal={cartTotal}
+              matchingPreview={matchingPreview}
+              onComplete={completeOrder}
+            />
+          )}
+
+          {/* FOOTER */}
+          <footer id="contact" className="bg-forest-950 text-earth-200 border-t border-forest-900 mt-auto">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-9 h-9 rounded-lg bg-forest-800 text-harvest-400 flex items-center justify-center">
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/></svg>
+                    </div>
+                    <span className="font-serif text-2xl font-bold text-earth-50">Harvest Route</span>
+                  </div>
+                  <p className="text-xs text-earth-400 leading-relaxed">
+                    Decentralizing commercial produce supply. Connecting chefs with resilient regional farming clusters to guarantee zero menu disruption.
+                  </p>
+                  <p className="text-[11px] text-earth-500">
+                    &copy; 2026 Harvest Route Systems, Inc. All rights reserved.
+                  </p>
+                </div>
+                <div>
+                  <h4 className="font-serif text-sm font-semibold text-harvest-300 uppercase tracking-wider mb-3">For Restaurants</h4>
+                  <ul className="space-y-2 text-xs text-earth-300">
+                    <li><a href="#" onClick={(e) => { e.preventDefault(); handleDemoLogin('restaurant'); }} className="hover:text-white transition">Restaurant Ordering Portal</a></li>
+                    <li><a href="#" className="hover:text-white transition">Multi-Farm Redundancy Guarantee</a></li>
+                    <li><a href="#" className="hover:text-white transition">Consolidated Billing & Traceability</a></li>
+                    <li><a href="#" className="hover:text-white transition">Kitchen Delivery Windows</a></li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-serif text-sm font-semibold text-harvest-300 uppercase tracking-wider mb-3">For Farmers</h4>
+                  <ul className="space-y-2 text-xs text-earth-300">
+                    <li><a href="#" onClick={(e) => { e.preventDefault(); handleDemoLogin('farmer'); }} className="hover:text-white transition">Farmer Inventory Hub</a></li>
+                    <li><a href="#" className="hover:text-white transition">Stripe Direct Daily Payouts</a></li>
+                    <li><a href="#" className="hover:text-white transition">Cooperative Standby Backups</a></li>
+                    <li><a href="#" className="hover:text-white transition">Regional Logistics Fleet</a></li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-serif text-sm font-semibold text-harvest-300 uppercase tracking-wider mb-3">Regional Network Hub</h4>
+                  <div className="space-y-2 text-xs text-earth-300">
+                    <p>📍 Central Dispatch: Terminal Way Hub 1</p>
+                    <p>📞 Chef Hotline: +1 (800) 555-FARM</p>
+                    <p>✉️ Operations: dispatch@harvestroute.local</p>
+                    <div className="pt-2 flex gap-2">
+                      <button onClick={() => handleDemoLogin('admin')} className="px-2.5 py-1 rounded bg-forest-900 border border-forest-700 text-harvest-300 text-xs hover:bg-forest-800 transition">Coordinator Console</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </footer>
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // LANDING PAGE VIEW COMPONENT
+    // =========================================================================
+    function LandingPageView({ t, onDemoLogin, onOpenAuth }) {
+      return (
+        <div>
+          {/* HERO SECTION */}
+          <section className="relative overflow-hidden hero-pattern text-white py-20 lg:py-28">
+            <div className="absolute inset-0 bg-gradient-to-b from-forest-950/70 via-transparent to-forest-950"></div>
+            <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center lg:text-left">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                <div className="lg:col-span-7 space-y-6">
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-forest-800/80 border border-forest-600 text-harvest-300 text-xs font-semibold tracking-wide uppercase">
+                    <span className="w-2 h-2 rounded-full bg-harvest-400 animate-pulse"></span>
+                    {t.hero.tagline}
+                  </div>
+                  <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-earth-50 leading-[1.15]">
+                    {t.hero.headline}
+                  </h1>
+                  <p className="text-base sm:text-lg text-earth-200 max-w-2xl font-light leading-relaxed">
+                    {t.hero.subheadline}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-4 pt-3 justify-center lg:justify-start">
+                    <button 
+                      onClick={() => onDemoLogin('restaurant')}
+                      className="px-6 py-3.5 bg-harvest-500 hover:bg-harvest-600 text-forest-950 font-bold rounded-xl shadow-lg transition transform hover:-translate-y-0.5 text-sm flex items-center gap-2"
+                    >
+                      <span>👨‍🍳 {t.hero.orderCTA}</span>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                    </button>
+                    <button 
+                      onClick={() => onDemoLogin('farmer')}
+                      className="px-6 py-3.5 bg-forest-800/90 hover:bg-forest-800 text-earth-100 font-semibold rounded-xl border border-forest-600 shadow transition text-sm flex items-center gap-2"
+                    >
+                      <span>🌾 {t.hero.farmerCTA}</span>
+                    </button>
+                  </div>
+                  {/* Trust Badges */}
+                  <div className="grid grid-cols-3 gap-4 pt-8 border-t border-forest-800/80 max-w-lg">
+                    <div>
+                      <div className="font-serif text-2xl font-bold text-harvest-300">{t.hero.statFarms}</div>
+                      <div className="text-xs text-earth-300">Clustered regionally</div>
+                    </div>
+                    <div>
+                      <div className="font-serif text-2xl font-bold text-harvest-300">{t.hero.statDelivery}</div>
+                      <div className="text-xs text-earth-300">Dawn to kitchen cooler</div>
+                    </div>
+                    <div>
+                      <div className="font-serif text-2xl font-bold text-harvest-300">{t.hero.statReliability}</div>
+                      <div className="text-xs text-earth-300">Failover protection</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Hero Interactive Infographic Card */}
+                <div className="lg:col-span-5">
+                  <div className="bg-[#FAF7F2] text-[#2A1E15] p-6 sm:p-7 rounded-3xl shadow-2xl border-4 border-forest-700/40 relative">
+                    <div className="flex items-center justify-between pb-4 border-b border-earth-200">
+                      <div>
+                        <span className="text-[10px] uppercase font-bold tracking-wider text-forest-700 block">Live Network Dispatch</span>
+                        <h4 className="font-serif text-lg font-bold text-forest-950">Active Multi-Farm Allocation</h4>
+                      </div>
+                      <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold">100% Redundant</span>
+                    </div>
+
+                    <div className="mt-4 space-y-3">
+                      <div className="p-3 rounded-xl bg-forest-50 border border-forest-200 flex items-center justify-between">
+                        <div>
+                          <div className="font-semibold text-xs text-forest-900">Green Meadow Organics</div>
+                          <div className="text-[11px] text-earth-600">6.2 mi • 35 kg Heirloom Tomatoes</div>
+                        </div>
+                        <span className="text-xs font-bold text-forest-700">Stop 1</span>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-forest-50 border border-forest-200 flex items-center justify-between">
+                        <div>
+                          <div className="font-semibold text-xs text-forest-900">Sunrise Acres Produce</div>
+                          <div className="text-[11px] text-earth-600">9.1 mi • 25 kg Golden Carrots</div>
+                        </div>
+                        <span className="text-xs font-bold text-forest-700">Stop 2</span>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-amber-50/80 border border-amber-200 flex items-center justify-between">
+                        <div>
+                          <div className="font-semibold text-xs text-amber-900">Riverbend Co-Op (Standby)</div>
+                          <div className="text-[11px] text-earth-600">Automated backup buffer ready</div>
+                        </div>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-200 text-amber-800">Standby</span>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 pt-3 border-t border-earth-200 flex items-center justify-between text-xs">
+                      <span className="text-earth-600">Drop-off: The Rustic Hearth</span>
+                      <span className="font-bold text-forest-800">Consolidated ETA: 12:15 PM</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* PROBLEM VS SOLUTION COMPARISON SECTION */}
+          <section id="comparison" className="py-20 bg-earth-100/60 border-y border-earth-200">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center max-w-3xl mx-auto mb-16">
+                <span className="text-xs font-bold uppercase tracking-widest text-forest-700 block mb-2">STRUCTURAL ARCHITECTURE</span>
+                <h2 className="font-serif text-3xl sm:text-4xl font-bold text-forest-950">{t.comparison.title}</h2>
+                <p className="mt-3 text-sm sm:text-base text-earth-700">{t.comparison.subtitle}</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {/* Col 1: Old Distant Farm */}
+                <div className="bg-white rounded-2xl p-7 border border-red-200 shadow-sm relative overflow-hidden">
+                  <div className="w-10 h-10 rounded-xl bg-red-100 text-red-700 flex items-center justify-center mb-4">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                  </div>
+                  <h3 className="font-serif text-xl font-bold text-red-950">{t.comparison.col1Title}</h3>
+                  <p className="text-xs text-red-700 font-medium mb-5">{t.comparison.col1Sub}</p>
+                  <ul className="space-y-3 text-xs text-earth-800">
+                    <li className="flex items-start gap-2">
+                      <span className="text-red-500 font-bold">✕</span>
+                      <span>{t.comparison.col1Point1}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-red-500 font-bold">✕</span>
+                      <span>{t.comparison.col1Point2}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-red-500 font-bold">✕</span>
+                      <span>{t.comparison.col1Point3}</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Col 2: Local Network */}
+                <div className="bg-white rounded-2xl p-7 border border-forest-300 shadow-sm relative overflow-hidden">
+                  <div className="w-10 h-10 rounded-xl bg-forest-100 text-forest-700 flex items-center justify-center mb-4">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg>
+                  </div>
+                  <h3 className="font-serif text-xl font-bold text-forest-950">{t.comparison.col2Title}</h3>
+                  <p className="text-xs text-forest-700 font-medium mb-5">{t.comparison.col2Sub}</p>
+                  <ul className="space-y-3 text-xs text-earth-800">
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-600 font-bold">✓</span>
+                      <span>{t.comparison.col2Point1}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-600 font-bold">✓</span>
+                      <span>{t.comparison.col2Point2}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-600 font-bold">✓</span>
+                      <span>{t.comparison.col2Point3}</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Col 3: Redundancy Engine */}
+                <div className="bg-forest-900 text-earth-50 rounded-2xl p-7 border border-forest-700 shadow-lg relative overflow-hidden">
+                  <div className="w-10 h-10 rounded-xl bg-harvest-500 text-forest-950 flex items-center justify-center mb-4 font-bold">
+                    ⚡
+                  </div>
+                  <h3 className="font-serif text-xl font-bold text-harvest-300">{t.comparison.col3Title}</h3>
+                  <p className="text-xs text-harvest-200/80 font-medium mb-5">{t.comparison.col3Sub}</p>
+                  <ul className="space-y-3 text-xs text-earth-200">
+                    <li className="flex items-start gap-2">
+                      <span className="text-harvest-400 font-bold">★</span>
+                      <span>{t.comparison.col3Point1}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-harvest-400 font-bold">★</span>
+                      <span>{t.comparison.col3Point2}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-harvest-400 font-bold">★</span>
+                      <span>{t.comparison.col3Point3}</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* 4-STEP HOW IT WORKS FLOW */}
+          <section id="how-it-works" className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <span className="text-xs font-bold uppercase tracking-widest text-forest-700 block mb-2">{t.steps.badge}</span>
+              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-forest-950">{t.steps.title}</h2>
+              <p className="mt-3 text-sm sm:text-base text-earth-700">{t.steps.subtitle}</p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative">
+              <div className="bg-white p-6 rounded-2xl border border-earth-200 shadow-sm relative">
+                <span className="font-serif text-4xl font-extrabold text-forest-200 block mb-3">01</span>
+                <h4 className="font-serif text-lg font-bold text-forest-950 mb-2">{t.steps.s1Title}</h4>
+                <p className="text-xs text-earth-700 leading-relaxed">{t.steps.s1Desc}</p>
+              </div>
+
+              <div className="bg-white p-6 rounded-2xl border border-earth-200 shadow-sm relative">
+                <span className="font-serif text-4xl font-extrabold text-harvest-200 block mb-3">02</span>
+                <h4 className="font-serif text-lg font-bold text-forest-950 mb-2">{t.steps.s2Title}</h4>
+                <p className="text-xs text-earth-700 leading-relaxed">{t.steps.s2Desc}</p>
+              </div>
+
+              <div className="bg-white p-6 rounded-2xl border border-earth-200 shadow-sm relative">
+                <span className="font-serif text-4xl font-extrabold text-forest-200 block mb-3">03</span>
+                <h4 className="font-serif text-lg font-bold text-forest-950 mb-2">{t.steps.s3Title}</h4>
+                <p className="text-xs text-earth-700 leading-relaxed">{t.steps.s3Desc}</p>
+              </div>
+
+              <div className="bg-white p-6 rounded-2xl border border-earth-200 shadow-sm relative">
+                <span className="font-serif text-4xl font-extrabold text-harvest-200 block mb-3">04</span>
+                <h4 className="font-serif text-lg font-bold text-forest-950 mb-2">{t.steps.s4Title}</h4>
+                <p className="text-xs text-earth-700 leading-relaxed">{t.steps.s4Desc}</p>
+              </div>
+            </div>
+          </section>
+
+          {/* SPLIT BENEFITS SECTION */}
+          <section id="benefits" className="py-20 bg-earth-50 border-t border-earth-200">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                {/* For Farmers */}
+                <div className="bg-[#FAF7F2] p-8 sm:p-10 rounded-3xl border border-forest-200 shadow-sm">
+                  <span className="text-xs uppercase font-bold text-forest-700 tracking-wider">GROWER ADVANTAGE</span>
+                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-forest-950 mt-1 mb-2">{t.benefits.farmersTitle}</h3>
+                  <p className="text-xs text-earth-700 mb-6">{t.benefits.farmersSubtitle}</p>
+                  <ul className="space-y-4 text-xs text-earth-800">
+                    <li className="flex items-start gap-3">
+                      <span className="w-5 h-5 rounded-full bg-forest-100 text-forest-800 font-bold flex items-center justify-center shrink-0">✓</span>
+                      <span>{t.benefits.f1}</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="w-5 h-5 rounded-full bg-forest-100 text-forest-800 font-bold flex items-center justify-center shrink-0">✓</span>
+                      <span>{t.benefits.f2}</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="w-5 h-5 rounded-full bg-forest-100 text-forest-800 font-bold flex items-center justify-center shrink-0">✓</span>
+                      <span>{t.benefits.f3}</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="w-5 h-5 rounded-full bg-forest-100 text-forest-800 font-bold flex items-center justify-center shrink-0">✓</span>
+                      <span>{t.benefits.f4}</span>
+                    </li>
+                  </ul>
+                  <button 
+                    onClick={() => onDemoLogin('farmer')}
+                    className="mt-8 px-5 py-2.5 rounded-xl bg-forest-800 hover:bg-forest-900 text-white font-semibold text-xs transition"
+                  >
+                    View Demo Farmer Portal &rarr;
+                  </button>
+                </div>
+
+                {/* For Restaurants */}
+                <div className="bg-[#FAF7F2] p-8 sm:p-10 rounded-3xl border border-harvest-200 shadow-sm">
+                  <span className="text-xs uppercase font-bold text-harvest-700 tracking-wider">CHEF ADVANTAGE</span>
+                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-forest-950 mt-1 mb-2">{t.benefits.restaurantsTitle}</h3>
+                  <p className="text-xs text-earth-700 mb-6">{t.benefits.restaurantsSubtitle}</p>
+                  <ul className="space-y-4 text-xs text-earth-800">
+                    <li className="flex items-start gap-3">
+                      <span className="w-5 h-5 rounded-full bg-harvest-100 text-harvest-800 font-bold flex items-center justify-center shrink-0">✓</span>
+                      <span>{t.benefits.r1}</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="w-5 h-5 rounded-full bg-harvest-100 text-harvest-800 font-bold flex items-center justify-center shrink-0">✓</span>
+                      <span>{t.benefits.r2}</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="w-5 h-5 rounded-full bg-harvest-100 text-harvest-800 font-bold flex items-center justify-center shrink-0">✓</span>
+                      <span>{t.benefits.r3}</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="w-5 h-5 rounded-full bg-harvest-100 text-harvest-800 font-bold flex items-center justify-center shrink-0">✓</span>
+                      <span>{t.benefits.r4}</span>
+                    </li>
+                  </ul>
+                  <button 
+                    onClick={() => onDemoLogin('restaurant')}
+                    className="mt-8 px-5 py-2.5 rounded-xl bg-forest-800 hover:bg-forest-900 text-white font-semibold text-xs transition"
+                  >
+                    View Demo Restaurant Portal &rarr;
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* TRUST STATS & TESTIMONIAL */}
+          <section className="py-20 bg-forest-900 text-white">
+            <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+              <span className="text-xs font-bold uppercase tracking-widest text-harvest-400 block mb-3">VERIFIED FIELD PERFORMANCE</span>
+              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-earth-50 mb-10">{t.trust.title}</h2>
+              <blockquote className="font-serif text-lg sm:text-xl italic text-earth-100 max-w-3xl mx-auto leading-relaxed mb-6">
+                &ldquo;{t.trust.quote}&rdquo;
+              </blockquote>
+              <div className="font-sans">
+                <div className="font-bold text-harvest-300 text-sm">{t.trust.author}</div>
+                <div className="text-xs text-earth-300">{t.trust.role}</div>
+              </div>
+            </div>
+          </section>
+
+          {/* FINAL CTA BANNER */}
+          <section className="py-20 bg-harvest-50 border-t border-earth-200 text-center">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-forest-950">{t.ctaBanner.title}</h2>
+              <p className="text-sm sm:text-base text-earth-700 max-w-2xl mx-auto leading-relaxed">{t.ctaBanner.desc}</p>
+              <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
+                <button 
+                  onClick={() => onDemoLogin('restaurant')}
+                  className="px-6 py-3 rounded-xl bg-forest-800 hover:bg-forest-900 text-white font-bold text-xs shadow-md transition"
+                >
+                  {t.ctaBanner.btnRest}
+                </button>
+                <button 
+                  onClick={() => onDemoLogin('farmer')}
+                  className="px-6 py-3 rounded-xl bg-earth-200 hover:bg-earth-300 text-forest-950 font-bold text-xs shadow-sm transition"
+                >
+                  {t.ctaBanner.btnFarm}
+                </button>
+              </div>
+            </div>
+          </section>
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // RESTAURANT DASHBOARD VIEW
+    // =========================================================================
+    function RestaurantDashboardView({
+      user,
+      activeTab,
+      setActiveTab,
+      produceList,
+      cart,
+      addToCart,
+      updateCartQty,
+      removeFromCart,
+      cartTotal,
+      matchingPreview,
+      orderTimeSlot,
+      setOrderTimeSlot,
+      orderDeliveryDate,
+      setOrderDeliveryDate,
+      orders,
+      recurringOrders,
+      setRecurringOrders,
+      onOpenCheckout,
+      onAdvanceStatus,
+      onSimulateShortfall
+    }) {
+      const [categoryFilter, setCategoryFilter] = useState("All");
+      const [searchTerm, setSearchTerm] = useState("");
+      const [reviewModalOpen, setReviewModalOpen] = useState(false);
+      const [reviewedFarmer, setReviewedFarmer] = useState("Green Meadow Organics");
+
+      const filteredProduce = produceList.filter(p => {
+        const matchesCat = categoryFilter === "All" || p.category.toLowerCase() === categoryFilter.toLowerCase();
+        const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
+        return matchesCat && matchesSearch;
+      });
+
+      return (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+          {/* HEADER BAR */}
+          <div className="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-earth-300">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-forest-700">Kitchen Operations</span>
+                <span className="px-2 py-0.5 rounded-full bg-forest-100 text-forest-800 text-[10px] font-bold">Active Buyer</span>
+              </div>
+              <h2 className="font-serif text-3xl font-bold text-forest-950 mt-0.5">{user.organization || "The Rustic Hearth"}</h2>
+              <p className="text-xs text-earth-600">{user.address} • {user.cuisine} • Avg: {user.volume}</p>
+            </div>
+
+            {/* DASHBOARD SUB-NAV TABS */}
+            <div className="flex items-center gap-2 bg-earth-200/60 p-1.5 rounded-xl border border-earth-300">
+              <button 
+                onClick={() => setActiveTab("order")} 
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition ${activeTab === 'order' ? 'bg-forest-800 text-white shadow-sm' : 'text-forest-900 hover:bg-earth-300/50'}`}
+              >
+                🛒 Place Order & Compare
+              </button>
+              <button 
+                onClick={() => setActiveTab("tracker")} 
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition ${activeTab === 'tracker' ? 'bg-forest-800 text-white shadow-sm' : 'text-forest-900 hover:bg-earth-300/50'}`}
+              >
+                🚚 Live Order Tracker ({orders.filter(o => o.status !== 'delivered').length})
+              </button>
+              <button 
+                onClick={() => setActiveTab("recurring")} 
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition ${activeTab === 'recurring' ? 'bg-forest-800 text-white shadow-sm' : 'text-forest-900 hover:bg-earth-300/50'}`}
+              >
+                🔄 Standing Orders
+              </button>
+              <button 
+                onClick={() => setActiveTab("invoices")} 
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition ${activeTab === 'invoices' ? 'bg-forest-800 text-white shadow-sm' : 'text-forest-900 hover:bg-earth-300/50'}`}
+              >
+                🧾 Invoices & Splits
+              </button>
+            </div>
+          </div>
+
+          {/* TAB 1: PLACE ORDER & MULTI-FARM PRICE COMPARISON */}
+          {activeTab === 'order' && (
+            <div className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+              {/* LEFT: PRODUCE BROWSER & PRICE COMPARISON */}
+              <div className="lg:col-span-8 space-y-6">
+                {/* Search & Categories */}
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                    {["All", "Vine Produce", "Greens", "Root Vegetables", "Microgreens", "Herbs"].map(cat => (
+                      <button 
+                        key={cat}
+                        onClick={() => setCategoryFilter(cat)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition ${categoryFilter === cat ? 'bg-forest-800 text-white' : 'bg-white text-earth-700 border border-earth-300 hover:bg-earth-100'}`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                  <input 
+                    type="text" 
+                    placeholder="Search fresh harvest..." 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="px-3 py-1.5 text-xs rounded-lg border border-earth-300 bg-white focus:outline-none focus:ring-2 focus:ring-forest-600 w-44"
+                  />
+                </div>
+
+                {/* PRODUCE CARDS WITH LOCAL FARM COMPARISON MATRIX */}
+                <div className="space-y-4">
+                  {filteredProduce.map(item => (
+                    <div key={item.id} className="bg-white rounded-2xl border border-earth-200 p-5 shadow-sm">
+                      <div className="flex flex-col sm:flex-row gap-5 items-start">
+                        <img src={item.imageUrl} alt={item.name} className="w-24 h-24 object-cover rounded-xl shrink-0" />
+                        <div className="flex-1 w-full">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <span className="text-[10px] uppercase font-bold text-forest-700">{item.category}</span>
+                              <h4 className="font-serif text-lg font-bold text-forest-950">{item.name}</h4>
+                              <p className="text-xs text-earth-600 mt-0.5">{item.description}</p>
+                            </div>
+                            <button 
+                              onClick={() => addToCart(item)}
+                              className="px-3.5 py-1.5 rounded-lg bg-forest-800 hover:bg-forest-900 text-white text-xs font-bold shadow transition shrink-0"
+                            >
+                              + Add to Order
+                            </button>
+                          </div>
+
+                          {/* Multi-Farmer Price Comparison Table */}
+                          <div className="mt-3.5 pt-3 border-t border-earth-200">
+                            <span className="text-[11px] font-bold text-forest-800 uppercase tracking-wide block mb-1.5">
+                              Nearby Farms Growing This Item:
+                            </span>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                              {item.farmPrices.map((fp, i) => (
+                                <div key={i} className="p-2.5 rounded-lg bg-earth-50 border border-earth-200 text-xs flex flex-col justify-between">
+                                  <div>
+                                    <div className="font-bold text-forest-900 truncate">{fp.farmName}</div>
+                                    <div className="text-[10px] text-earth-500">{fp.distance} away • {fp.harvestReady}</div>
+                                  </div>
+                                  <div className="mt-2 flex items-center justify-between">
+                                    <span className="font-serif font-bold text-forest-900 text-sm">${fp.price.toFixed(2)} <span className="text-[10px] font-normal text-earth-500">/{item.unit}</span></span>
+                                    <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">{fp.stock} {item.unit} in stock</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* RIGHT: SMART ORDER MANIFEST & REDUNDANCY ENGINE PREVIEW */}
+              <div className="lg:col-span-4 space-y-6">
+                <div className="bg-white rounded-2xl border border-earth-300 p-6 shadow-md sticky top-28">
+                  <div className="flex items-center justify-between pb-3 border-b border-earth-200">
+                    <h3 className="font-serif text-lg font-bold text-forest-950">Active Cart</h3>
+                    <span className="text-xs font-semibold text-earth-600">{cart.length} produce types</span>
+                  </div>
+
+                  {cart.length === 0 ? (
+                    <div className="py-8 text-center text-xs text-earth-500">
+                      Your order manifest is empty.<br />Select produce from local growers.
+                    </div>
+                  ) : (
+                    <div className="mt-4 space-y-3">
+                      {cart.map(item => (
+                        <div key={item.produceId} className="flex items-center justify-between text-xs pb-2 border-b border-earth-100">
+                          <div>
+                            <div className="font-bold text-forest-900">{item.name}</div>
+                            <div className="text-[10px] text-earth-500">${item.price.toFixed(2)} / {item.unit}</div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button onClick={() => updateCartQty(item.produceId, -5)} className="w-5 h-5 rounded bg-earth-200 text-earth-800 font-bold flex items-center justify-center">-</button>
+                            <span className="font-bold w-10 text-center">{item.qty} {item.unit}</span>
+                            <button onClick={() => updateCartQty(item.produceId, 5)} className="w-5 h-5 rounded bg-earth-200 text-earth-800 font-bold flex items-center justify-center">+</button>
+                            <button onClick={() => removeFromCart(item.produceId)} className="text-red-500 hover:text-red-700 ml-1">&times;</button>
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* Scheduling slots */}
+                      <div className="pt-3 space-y-2">
+                        <div>
+                          <label className="text-[11px] font-bold text-earth-700 block">Delivery Date</label>
+                          <select 
+                            value={orderDeliveryDate} 
+                            onChange={e => setOrderDeliveryDate(e.target.value)}
+                            className="w-full text-xs p-2 rounded-lg border border-earth-300 bg-earth-50 focus:outline-none"
+                          >
+                            <option value="Today Afternoon">Today (Lunch Emergency)</option>
+                            <option value="Tomorrow">Tomorrow Morning</option>
+                            <option value="Friday">Friday Morning Prep</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="text-[11px] font-bold text-earth-700 block">Kitchen Receiving Window</label>
+                          <select 
+                            value={orderTimeSlot} 
+                            onChange={e => setOrderTimeSlot(e.target.value)}
+                            className="w-full text-xs p-2 rounded-lg border border-earth-300 bg-earth-50 focus:outline-none"
+                          >
+                            <option value="09:00 AM - 11:00 AM (Early Delivery)">09:00 AM - 11:00 AM (Early Delivery)</option>
+                            <option value="11:00 AM - 1:00 PM (Kitchen Prep Window)">11:00 AM - 1:00 PM (Kitchen Prep Window)</option>
+                            <option value="02:00 PM - 04:00 PM (Dinner Shift)">02:00 PM - 04:00 PM (Dinner Shift)</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* CORE MATCHING ENGINE PREVIEW */}
+                      {matchingPreview && (
+                        <div className="mt-4 p-3.5 rounded-xl bg-forest-50 border border-forest-200 text-xs space-y-2">
+                          <div className="flex items-center justify-between font-bold text-forest-900">
+                            <span>🛡️ Redundancy Allocation:</span>
+                            <span className="text-[10px] bg-forest-200 text-forest-900 px-2 py-0.5 rounded-full">{matchingPreview.farms.length} Farms Matched</span>
+                          </div>
+                          <div className="space-y-1.5 text-[11px] text-earth-700">
+                            {matchingPreview.farms.map((f, i) => (
+                              <div key={i} className="flex justify-between items-center bg-white/70 p-1.5 rounded">
+                                <span className="font-semibold text-forest-900">{f.name}:</span>
+                                <span className="truncate max-w-[140px]">{f.allocatedItems.join(", ")}</span>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="text-[10px] text-forest-700 pt-1 border-t border-forest-200 font-medium">
+                            🚚 {matchingPreview.routeSummary}
+                          </div>
+                          <div className="text-[10px] text-amber-800 bg-amber-100/60 p-1.5 rounded font-medium">
+                            Standby Backup: {matchingPreview.standbyFarm}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Total & Checkout */}
+                      <div className="pt-4 border-t border-earth-200 space-y-3">
+                        <div className="flex justify-between items-baseline">
+                          <span className="text-xs text-earth-600">Total Produce:</span>
+                          <span className="font-serif text-xl font-bold text-forest-950">${cartTotal.toFixed(2)}</span>
+                        </div>
+                        <button 
+                          onClick={onOpenCheckout}
+                          className="w-full py-3 rounded-xl bg-forest-800 hover:bg-forest-900 text-white font-bold text-xs shadow-md transition"
+                        >
+                          Proceed to Stripe Checkout &rarr;
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: LIVE ORDER TRACKER */}
+          {activeTab === 'tracker' && (
+            <div className="mt-8 space-y-6">
+              <div className="bg-white rounded-2xl border border-earth-200 p-6 shadow-sm">
+                <h3 className="font-serif text-xl font-bold text-forest-950 mb-1">Live Order Status Tracker</h3>
+                <p className="text-xs text-earth-600 mb-6">Track each contributing farm's harvest status, truck transit, and backup coverage in real time.</p>
+
+                <div className="space-y-6">
+                  {orders.map(order => (
+                    <div key={order.id} className="p-6 rounded-2xl bg-earth-50 border border-earth-300 space-y-5">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-serif font-bold text-lg text-forest-950">Order #{order.id}</span>
+                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${order.status === 'delivered' ? 'bg-emerald-100 text-emerald-800' : 'bg-harvest-100 text-harvest-800'}`}>
+                              {order.status.replace('_', ' ')}
+                            </span>
+                          </div>
+                          <p className="text-xs text-earth-600">Delivery: {order.deliveryDate} • Slot: {order.deliveryTimeSlot}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {/* Demo Interactive Controls */}
+                          {order.stepIndex < 4 && (
+                            <button 
+                              onClick={() => onAdvanceStatus(order.id)}
+                              className="px-3 py-1.5 rounded-lg bg-forest-800 hover:bg-forest-900 text-white text-xs font-semibold shadow-sm transition"
+                            >
+                              Advance Status &rarr;
+                            </button>
+                          )}
+                          <button 
+                            onClick={() => onSimulateShortfall(order.id, order.contributingFarmers[0]?.farmName || "Primary Farm")}
+                            className="px-3 py-1.5 rounded-lg bg-amber-700 hover:bg-amber-800 text-white text-xs font-semibold shadow-sm transition"
+                            title="Test automatic failover reassignment"
+                          >
+                            ⚠️ Simulate Shortfall
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Visual 4-Step Progress Bar */}
+                      <div className="grid grid-cols-4 gap-2 text-center text-xs">
+                        <div className={`p-2.5 rounded-xl border ${order.stepIndex >= 1 ? 'bg-forest-800 text-white border-forest-900' : 'bg-white text-earth-400 border-earth-200'}`}>
+                          <div className="font-bold">1. Confirmed</div>
+                          <div className="text-[10px] opacity-80">Order matched</div>
+                        </div>
+                        <div className={`p-2.5 rounded-xl border ${order.stepIndex >= 2 ? 'bg-forest-800 text-white border-forest-900' : 'bg-white text-earth-400 border-earth-200'}`}>
+                          <div className="font-bold">2. Harvesting</div>
+                          <div className="text-[10px] opacity-80">Dawn harvest</div>
+                        </div>
+                        <div className={`p-2.5 rounded-xl border ${order.stepIndex >= 3 ? 'bg-forest-800 text-white border-forest-900' : 'bg-white text-earth-400 border-earth-200'}`}>
+                          <div className="font-bold">3. In Transit</div>
+                          <div className="text-[10px] opacity-80">Consolidated van</div>
+                        </div>
+                        <div className={`p-2.5 rounded-xl border ${order.stepIndex >= 4 ? 'bg-emerald-700 text-white border-emerald-800' : 'bg-white text-earth-400 border-earth-200'}`}>
+                          <div className="font-bold">4. Delivered</div>
+                          <div className="text-[10px] opacity-80">Kitchen received</div>
+                        </div>
+                      </div>
+
+                      {/* Contributing Farmers & Route Breakdown */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                        <div className="bg-white p-4 rounded-xl border border-earth-200 text-xs">
+                          <span className="font-bold text-forest-900 block mb-2">Contributing Local Farmers:</span>
+                          <div className="space-y-2">
+                            {order.contributingFarmers?.map((f, idx) => (
+                              <div key={idx} className="flex justify-between items-center pb-1 border-b border-earth-100">
+                                <div>
+                                  <span className="font-semibold text-forest-800">{f.farmName}</span>
+                                  <div className="text-[10px] text-earth-500">{f.items}</div>
+                                </div>
+                                <span className="font-mono font-bold text-earth-800">${f.amount.toFixed(2)}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="bg-white p-4 rounded-xl border border-earth-200 text-xs">
+                          <span className="font-bold text-forest-900 block mb-2">Logistics & Route Manifest:</span>
+                          <p className="text-earth-700 leading-relaxed mb-2">🚚 {order.routeOptimization}</p>
+                          <div className="p-2 rounded bg-forest-50 text-forest-800 text-[11px] font-semibold">
+                            🛡️ {order.redundancyLevel}
+                          </div>
+                          {order.status === 'delivered' && (
+                            <button 
+                              onClick={() => { setReviewedFarmer(order.contributingFarmers[0]?.farmName || "Farm"); setReviewModalOpen(true); }}
+                              className="mt-3 px-3 py-1.5 rounded-lg bg-harvest-500 hover:bg-harvest-600 text-forest-950 font-bold text-xs transition"
+                            >
+                              ⭐ Rate & Review Farmers
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: STANDING / RECURRING ORDERS */}
+          {activeTab === 'recurring' && (
+            <div className="mt-8 space-y-6">
+              <div className="bg-white rounded-2xl border border-earth-200 p-6 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="font-serif text-xl font-bold text-forest-950">Standing & Recurring Orders</h3>
+                    <p className="text-xs text-earth-600">Automate pantry replenishment without ever worrying about single-supplier stockouts.</p>
+                  </div>
+                  <button 
+                    onClick={() => {
+                      const newRec = {
+                        id: `REC-${Math.floor(100 + Math.random() * 900)}`,
+                        title: "Daily Microgreens & Herb Drop",
+                        frequency: "Daily (Mon-Fri)",
+                        items: "Microgreens Blend (1 crate), Fresh Basil (2 kg)",
+                        active: true,
+                        nextDate: "Tomorrow Morning"
+                      };
+                      setRecurringOrders(prev => [newRec, ...prev]);
+                    }}
+                    className="px-3.5 py-2 rounded-lg bg-forest-800 hover:bg-forest-900 text-white text-xs font-bold transition"
+                  >
+                    + New Standing Schedule
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  {recurringOrders.map(rec => (
+                    <div key={rec.id} className="p-4 rounded-xl bg-earth-50 border border-earth-200 flex flex-wrap items-center justify-between gap-4">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-forest-950 text-sm">{rec.title}</span>
+                          <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">Active</span>
+                        </div>
+                        <div className="text-xs text-earth-600 mt-0.5">{rec.frequency} • Next: {rec.nextDate}</div>
+                        <div className="text-xs text-forest-800 mt-1 font-medium">{rec.items}</div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button className="px-3 py-1.5 rounded-lg border border-earth-300 text-xs hover:bg-earth-200 text-earth-800 font-medium">Edit Items</button>
+                        <button className="px-3 py-1.5 rounded-lg bg-forest-800 text-white text-xs font-semibold">1-Click Trigger Now</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 4: INVOICES & ITEMIZED SPLITS */}
+          {activeTab === 'invoices' && (
+            <div className="mt-8 space-y-6">
+              <div className="bg-white rounded-2xl border border-earth-200 p-6 shadow-sm">
+                <h3 className="font-serif text-xl font-bold text-forest-950 mb-1">Invoices & Payout Traceability</h3>
+                <p className="text-xs text-earth-600 mb-6">Every consolidated invoice breaks down itemized costs paid directly to contributing growers.</p>
+
+                <div className="space-y-4">
+                  {orders.map(order => (
+                    <div key={order.id} className="p-5 rounded-xl border border-earth-200 bg-earth-50">
+                      <div className="flex flex-wrap items-center justify-between pb-3 border-b border-earth-200 gap-2">
+                        <div>
+                          <span className="font-serif font-bold text-base text-forest-950">Invoice #INV-{order.id.replace('ORD-', '')}</span>
+                          <span className="text-xs text-earth-600 ml-2">For {order.deliveryDate}</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                            Paid via Stripe Test Card (•••• 4242)
+                          </span>
+                          <span className="font-serif text-base font-bold text-forest-950">${order.totalAmount.toFixed(2)}</span>
+                        </div>
+                      </div>
+
+                      <div className="mt-3">
+                        <span className="text-[11px] font-bold text-earth-700 uppercase tracking-wide block mb-2">Itemized Grower Splits:</span>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                          {order.contributingFarmers?.map((f, i) => (
+                            <div key={i} className="p-3 bg-white rounded-lg border border-earth-200 text-xs">
+                              <div className="font-bold text-forest-900">{f.farmName}</div>
+                              <div className="text-earth-600 text-[11px] my-1">{f.items}</div>
+                              <div className="flex justify-between items-center pt-1 border-t border-earth-100 font-mono font-semibold">
+                                <span className="text-earth-500">Gross:</span>
+                                <span>${f.amount.toFixed(2)}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* RATING & REVIEW MODAL */}
+          {reviewModalOpen && (
+            <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-[#FAF7F2] max-w-md w-full rounded-2xl p-6 shadow-2xl border border-earth-300">
+                <div className="flex items-center justify-between pb-3 border-b border-earth-200">
+                  <h4 className="font-serif text-lg font-bold text-forest-950">Rate & Review Farmer</h4>
+                  <button onClick={() => setReviewModalOpen(false)} className="text-earth-500 text-xl">&times;</button>
+                </div>
+                <div className="mt-4 space-y-4">
+                  <div>
+                    <label className="text-xs font-bold text-earth-800 block mb-1">Farmer: {reviewedFarmer}</label>
+                    <div className="flex gap-2 text-2xl text-harvest-500 cursor-pointer">
+                      <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-earth-800 block mb-1">Chef Feedback</label>
+                    <textarea 
+                      rows="3" 
+                      defaultValue="Pristine dew-fresh produce! Leaves crisp, zero bruising, beautifully packed." 
+                      className="w-full text-xs p-3 rounded-lg border border-earth-300 bg-white focus:outline-none"
+                    ></textarea>
+                  </div>
+                  <button 
+                    onClick={() => { alert("Review submitted! Rating score updated in platform algorithm."); setReviewModalOpen(false); }}
+                    className="w-full py-2.5 rounded-xl bg-forest-800 hover:bg-forest-900 text-white font-bold text-xs"
+                  >
+                    Submit Review &rarr;
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // FARMER DASHBOARD VIEW
+    // =========================================================================
+    function FarmerDashboardView({ user, orders, produceList, onAddProduce, onSimulateShortfall, onAdvanceStatus }) {
+      const [farmerTab, setFarmerTab] = useState("inventory");
+      const [newItemName, setNewItemName] = useState("");
+      const [newItemPrice, setNewItemPrice] = useState("");
+      const [newItemStock, setNewItemStock] = useState("");
+      const [newItemUnit, setNewItemUnit] = useState("kg");
+
+      const myOrders = orders.filter(o => o.contributingFarmers?.some(cf => cf.farmName === user.organization || cf.farmerId === user.id));
+
+      const handleAddCrop = (e) => {
+        e.preventDefault();
+        if (!newItemName || !newItemPrice || !newItemStock) return;
+        const newCrop = {
+          id: `prod_${Date.now()}`,
+          name: newItemName,
+          category: "Seasonal Farm Harvest",
+          unit: newItemUnit,
+          description: "Freshly cultivated locally at peak nutrition.",
+          imageUrl: "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80",
+          farmPrices: [
+            {
+              farmerId: user.id,
+              farmName: user.organization,
+              price: Number(newItemPrice),
+              stock: Number(newItemStock),
+              harvestReady: "Harvest on Order",
+              distance: "6.2 mi"
+            }
+          ]
+        };
+        onAddProduce(newCrop);
+        setNewItemName("");
+        setNewItemPrice("");
+        setNewItemStock("");
+        alert(`Successfully added ${newCrop.name} to network marketplace!`);
+      };
+
+      return (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+          {/* HEADER BAR */}
+          <div className="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-earth-300">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-forest-700">Grower Operations</span>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">Tier 1 Certified Farm</span>
+              </div>
+              <h2 className="font-serif text-3xl font-bold text-forest-950 mt-0.5">{user.organization}</h2>
+              <p className="text-xs text-earth-600">{user.address} • Capacity: {user.capacity} • On-Time: {user.onTimeRate}%</p>
+            </div>
+
+            {/* FARMER SUB-NAV */}
+            <div className="flex items-center gap-2 bg-earth-200/60 p-1.5 rounded-xl border border-earth-300">
+              <button 
+                onClick={() => setFarmerTab("inventory")} 
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition ${farmerTab === 'inventory' ? 'bg-forest-800 text-white' : 'text-forest-900 hover:bg-earth-300/50'}`}
+              >
+                🌱 Crop Inventory
+              </button>
+              <button 
+                onClick={() => setFarmerTab("requests")} 
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition ${farmerTab === 'requests' ? 'bg-forest-800 text-white' : 'text-forest-900 hover:bg-earth-300/50'}`}
+              >
+                📋 Matched Requests ({myOrders.length})
+              </button>
+              <button 
+                onClick={() => setFarmerTab("calendar")} 
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition ${farmerTab === 'calendar' ? 'bg-forest-800 text-white' : 'text-forest-900 hover:bg-earth-300/50'}`}
+              >
+                📅 Delivery Calendar
+              </button>
+              <button 
+                onClick={() => setFarmerTab("earnings")} 
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition ${farmerTab === 'earnings' ? 'bg-forest-800 text-white' : 'text-forest-900 hover:bg-earth-300/50'}`}
+              >
+                💰 Earnings & Stripe
+              </button>
+            </div>
+          </div>
+
+          {/* TAB 1: CROP INVENTORY MANAGEMENT */}
+          {farmerTab === 'inventory' && (
+            <div className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+              <div className="lg:col-span-8 space-y-6">
+                <div className="bg-white rounded-2xl border border-earth-200 p-6 shadow-sm">
+                  <h3 className="font-serif text-xl font-bold text-forest-950 mb-1">Live Produce Listings</h3>
+                  <p className="text-xs text-earth-600 mb-6">Manage available stock, set harvest-ready dates, and adjust crate prices.</p>
+
+                  <div className="space-y-4">
+                    {produceList.map(item => {
+                      const myPrice = item.farmPrices.find(fp => fp.farmerId === user.id || fp.farmName === user.organization);
+                      return (
+                        <div key={item.id} className="p-4 rounded-xl border border-earth-200 bg-earth-50 flex flex-wrap items-center justify-between gap-4">
+                          <div className="flex items-center gap-3">
+                            <img src={item.imageUrl} className="w-12 h-12 rounded-lg object-cover" />
+                            <div>
+                              <div className="font-bold text-forest-900 text-sm">{item.name}</div>
+                              <div className="text-xs text-earth-600">{item.category} • {item.unit}</div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <div className="text-right">
+                              <span className="font-bold text-forest-900 text-sm">${(myPrice?.price || 4.50).toFixed(2)}</span>
+                              <span className="text-[10px] text-earth-500 block">/{item.unit}</span>
+                            </div>
+                            <div className="text-right">
+                              <span className="font-bold text-emerald-700 text-xs">{myPrice?.stock || 80} {item.unit}</span>
+                              <span className="text-[10px] text-earth-500 block">in ground</span>
+                            </div>
+                            <button className="px-3 py-1.5 rounded-lg bg-earth-200 text-forest-900 text-xs font-semibold hover:bg-earth-300">
+                              Edit Stock
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* Add New Harvest Listing */}
+              <div className="lg:col-span-4">
+                <div className="bg-white rounded-2xl border border-earth-300 p-6 shadow-md">
+                  <h3 className="font-serif text-lg font-bold text-forest-950 mb-2">List New Harvest</h3>
+                  <p className="text-xs text-earth-600 mb-4">Post crops to the regional restaurant matching pool.</p>
+                  
+                  <form onSubmit={handleAddCrop} className="space-y-3">
+                    <div>
+                      <label className="text-xs font-bold text-earth-800 block mb-1">Crop / Vegetable Name</label>
+                      <input 
+                        type="text" 
+                        required 
+                        placeholder="e.g. Romanesco Cauliflower" 
+                        value={newItemName}
+                        onChange={e => setNewItemName(e.target.value)}
+                        className="w-full text-xs p-2.5 rounded-lg border border-earth-300 bg-earth-50"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-xs font-bold text-earth-800 block mb-1">Price ($)</label>
+                        <input 
+                          type="number" 
+                          step="0.1" 
+                          required 
+                          placeholder="4.20" 
+                          value={newItemPrice}
+                          onChange={e => setNewItemPrice(e.target.value)}
+                          className="w-full text-xs p-2.5 rounded-lg border border-earth-300 bg-earth-50"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-bold text-earth-800 block mb-1">Unit</label>
+                        <select 
+                          value={newItemUnit} 
+                          onChange={e => setNewItemUnit(e.target.value)}
+                          className="w-full text-xs p-2.5 rounded-lg border border-earth-300 bg-earth-50"
+                        >
+                          <option value="kg">kg</option>
+                          <option value="crate">crate</option>
+                          <option value="lb">lb</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-earth-800 block mb-1">Available Quantity</label>
+                      <input 
+                        type="number" 
+                        required 
+                        placeholder="150" 
+                        value={newItemStock}
+                        onChange={e => setNewItemStock(e.target.value)}
+                        className="w-full text-xs p-2.5 rounded-lg border border-earth-300 bg-earth-50"
+                      />
+                    </div>
+                    <button type="submit" className="w-full py-2.5 rounded-xl bg-forest-800 hover:bg-forest-900 text-white font-bold text-xs mt-2">
+                      + List on Marketplace
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: MATCHED ORDER REQUESTS */}
+          {farmerTab === 'requests' && (
+            <div className="mt-8 space-y-6">
+              <div className="bg-white rounded-2xl border border-earth-200 p-6 shadow-sm">
+                <h3 className="font-serif text-xl font-bold text-forest-950 mb-1">Matched Order Requests</h3>
+                <p className="text-xs text-earth-600 mb-6">Review requests allocated by the matching engine. You can confirm or simulate a yield shortfall.</p>
+
+                <div className="space-y-4">
+                  {myOrders.map(order => {
+                    const myCut = order.contributingFarmers?.find(f => f.farmName === user.organization || f.farmerId === user.id);
+                    return (
+                      <div key={order.id} className="p-5 rounded-2xl bg-earth-50 border border-earth-300">
+                        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-earth-200">
+                          <div>
+                            <span className="font-serif font-bold text-lg text-forest-950">Order #{order.id}</span>
+                            <span className="text-xs text-earth-600 ml-2">Restaurant: <strong>{order.restaurantName}</strong></span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button 
+                              onClick={() => onAdvanceStatus(order.id)}
+                              className="px-3 py-1.5 rounded-lg bg-forest-800 hover:bg-forest-900 text-white text-xs font-bold"
+                            >
+                              Confirm Harvest Complete
+                            </button>
+                            <button 
+                              onClick={() => onSimulateShortfall(order.id, user.organization)}
+                              className="px-3 py-1.5 rounded-lg bg-amber-700 hover:bg-amber-800 text-white text-xs font-bold"
+                            >
+                              ⚠️ Report Shortfall & Failover
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="mt-3 flex flex-wrap items-center justify-between text-xs gap-3">
+                          <div>
+                            <span className="font-semibold text-forest-800">Your Harvest Quota:</span>
+                            <div className="text-earth-800 font-medium">{myCut?.items}</div>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-earth-500 block">Stripe Split Payout:</span>
+                            <span className="font-serif font-bold text-lg text-forest-950">${(myCut?.amount || 0).toFixed(2)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: CALENDAR */}
+          {farmerTab === 'calendar' && (
+            <div className="mt-8 space-y-6">
+              <div className="bg-white rounded-2xl border border-earth-200 p-6 shadow-sm">
+                <h3 className="font-serif text-xl font-bold text-forest-950 mb-1">Harvest & Delivery Commitments</h3>
+                <p className="text-xs text-earth-600 mb-6">Upcoming scheduled pickup windows for the consolidated eco-van fleet.</p>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-4 rounded-xl border border-forest-300 bg-forest-50/50">
+                    <span className="text-xs font-bold text-forest-800 uppercase block mb-1">Today 07:30 AM (Completed)</span>
+                    <h5 className="font-bold text-forest-950 text-sm">Order #ORD-9402</h5>
+                    <p className="text-xs text-earth-700 mt-1">35 kg Heirloom Tomatoes + 4 kg Genovese Basil</p>
+                    <span className="inline-block mt-2 px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">Loaded on Van Alpha</span>
+                  </div>
+
+                  <div className="p-4 rounded-xl border border-earth-300 bg-white">
+                    <span className="text-xs font-bold text-earth-700 uppercase block mb-1">Tomorrow 06:45 AM</span>
+                    <h5 className="font-bold text-forest-950 text-sm">Order #ORD-9418</h5>
+                    <p className="text-xs text-earth-700 mt-1">40 kg Dinosaur Kale + 15 kg Sweet Peppers</p>
+                    <span className="inline-block mt-2 px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-bold">Scheduled Pickup</span>
+                  </div>
+
+                  <div className="p-4 rounded-xl border border-earth-300 bg-white">
+                    <span className="text-xs font-bold text-earth-700 uppercase block mb-1">Friday Morning</span>
+                    <h5 className="font-bold text-forest-950 text-sm">Recurring Pantry Drop #REC-101</h5>
+                    <p className="text-xs text-earth-700 mt-1">30 kg Heirloom Tomatoes + 20 kg Kale</p>
+                    <span className="inline-block mt-2 px-2 py-0.5 rounded bg-earth-200 text-earth-800 text-[10px] font-bold">Standing Contract</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 4: EARNINGS & PAYOUTS */}
+          {farmerTab === 'earnings' && (
+            <div className="mt-8 space-y-6">
+              <div className="bg-white rounded-2xl border border-earth-200 p-6 shadow-sm">
+                <div className="flex flex-wrap items-center justify-between pb-6 border-b border-earth-200 gap-4">
+                  <div>
+                    <h3 className="font-serif text-xl font-bold text-forest-950 mb-1">Earnings & Stripe Direct Connect</h3>
+                    <p className="text-xs text-earth-600">Fair transparent payout: 95% net disbursement on every consolidated drop.</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                    <span className="text-xs font-bold text-forest-900">Stripe Connected: acct_1N98492</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 my-6">
+                  <div className="p-5 rounded-2xl bg-earth-50 border border-earth-200">
+                    <span className="text-xs text-earth-600 block">Total Disbursed:</span>
+                    <span className="font-serif text-3xl font-bold text-forest-950">${user.totalEarnings.toLocaleString()}</span>
+                  </div>
+                  <div className="p-5 rounded-2xl bg-earth-50 border border-earth-200">
+                    <span className="text-xs text-earth-600 block">Pending Transit Escrow:</span>
+                    <span className="font-serif text-3xl font-bold text-harvest-700">$318.50</span>
+                  </div>
+                  <div className="p-5 rounded-2xl bg-earth-50 border border-earth-200">
+                    <span className="text-xs text-earth-600 block">On-Time Reliability Score:</span>
+                    <span className="font-serif text-3xl font-bold text-emerald-700">{user.onTimeRate}%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // ADMIN DASHBOARD VIEW
+    // =========================================================================
+    function AdminDashboardView({ orders, farmers, onAdvanceStatus, onSimulateShortfall }) {
+      return (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8">
+          <div className="pb-6 border-b border-earth-300">
+            <span className="text-xs font-bold uppercase tracking-wider text-forest-700">Platform Logistics Control</span>
+            <h2 className="font-serif text-3xl font-bold text-forest-950 mt-0.5">Central Network Coordinator Console</h2>
+            <p className="text-xs text-earth-600">Real-time monitoring of decentralized multi-farmer logistics, redundancy clusters, and automated failovers.</p>
+          </div>
+
+          {/* KPI CARDS */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-white p-5 rounded-2xl border border-earth-200 shadow-sm">
+              <span className="text-xs text-earth-600 block">Live Orders Across Network</span>
+              <span className="font-serif text-2xl font-bold text-forest-950">{orders.length}</span>
+            </div>
+            <div className="bg-white p-5 rounded-2xl border border-earth-200 shadow-sm">
+              <span className="text-xs text-earth-600 block">Active Certified Farms</span>
+              <span className="font-serif text-2xl font-bold text-forest-950">48 Farms</span>
+            </div>
+            <div className="bg-white p-5 rounded-2xl border border-earth-200 shadow-sm">
+              <span className="text-xs text-earth-600 block">Network On-Time Delivery</span>
+              <span className="font-serif text-2xl font-bold text-emerald-700">99.4%</span>
+            </div>
+            <div className="bg-white p-5 rounded-2xl border border-earth-200 shadow-sm">
+              <span className="text-xs text-earth-600 block">Failover Protection Rate</span>
+              <span className="font-serif text-2xl font-bold text-harvest-600">100% Zero-Loss</span>
+            </div>
+          </div>
+
+          {/* LIVE NETWORK OPERATIONS TABLE */}
+          <div className="bg-white rounded-2xl border border-earth-200 p-6 shadow-sm">
+            <h3 className="font-serif text-lg font-bold text-forest-950 mb-4">Live Platform Manifest</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-earth-200 text-earth-500 uppercase text-[10px]">
+                    <th className="pb-3">Order ID</th>
+                    <th className="pb-3">Restaurant</th>
+                    <th className="pb-3">Status</th>
+                    <th className="pb-3">Redundancy / Farms</th>
+                    <th className="pb-3">Consolidated Route</th>
+                    <th className="pb-3 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-earth-100">
+                  {orders.map(order => (
+                    <tr key={order.id} className="hover:bg-earth-50/50">
+                      <td className="py-3 font-bold text-forest-900">{order.id}</td>
+                      <td className="py-3 font-medium">{order.restaurantName}</td>
+                      <td className="py-3">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${order.status === 'delivered' ? 'bg-emerald-100 text-emerald-800' : 'bg-harvest-100 text-harvest-800'}`}>
+                          {order.status.replace('_', ' ')}
+                        </span>
+                      </td>
+                      <td className="py-3 text-earth-700">{order.redundancyLevel}</td>
+                      <td className="py-3 text-earth-600 max-w-[200px] truncate">{order.routeOptimization}</td>
+                      <td className="py-3 text-right">
+                        <button 
+                          onClick={() => onAdvanceStatus(order.id)}
+                          className="px-2.5 py-1 rounded bg-forest-800 text-white font-semibold text-[10px] hover:bg-forest-900 mr-1.5"
+                        >
+                          Step Next
+                        </button>
+                        <button 
+                          onClick={() => onSimulateShortfall(order.id, "Primary Farm")}
+                          className="px-2.5 py-1 rounded bg-amber-700 text-white font-semibold text-[10px] hover:bg-amber-800"
+                        >
+                          Simulate Failover
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // AUTH MODAL COMPONENT
+    // =========================================================================
+    function AuthModal({ isOpen, onClose, role, setRole, isSignUp, setIsSignUp, onSuccess, onDemoLogin }) {
+      const [email, setEmail] = useState("");
+      const [password, setPassword] = useState("");
+      const [orgName, setOrgName] = useState("");
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        const userObj = {
+          id: `usr_${role}_${Date.now()}`,
+          email: email || `user@${role}.com`,
+          role: role,
+          name: orgName || `${role === 'restaurant' ? 'Bistro Owner' : 'Regional Grower'}`,
+          organization: orgName || (role === 'restaurant' ? "Artisanal Table" : "Pine Hill Organics"),
+          address: "Local District, Hub 2",
+          rating: 5.0,
+          totalEarnings: 0
+        };
+        onSuccess(userObj);
+      };
+
+      return (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#FAF7F2] max-w-md w-full rounded-3xl p-7 shadow-2xl border border-earth-300">
+            <div className="flex items-center justify-between pb-3 border-b border-earth-200">
+              <h3 className="font-serif text-xl font-bold text-forest-950">
+                {isSignUp ? "Join the Harvest Route Network" : "Sign In to Your Portal"}
+              </h3>
+              <button onClick={onClose} className="text-earth-500 hover:text-earth-900 text-xl font-bold">&times;</button>
+            </div>
+
+            {/* Role Picker */}
+            <div className="grid grid-cols-2 gap-2 my-4 p-1.5 bg-earth-200 rounded-xl">
+              <button 
+                onClick={() => setRole("restaurant")}
+                className={`py-2 rounded-lg text-xs font-bold transition ${role === 'restaurant' ? 'bg-white text-forest-900 shadow-sm' : 'text-earth-700'}`}
+              >
+                👨‍🍳 Restaurant Kitchen
+              </button>
+              <button 
+                onClick={() => setRole("farmer")}
+                className={`py-2 rounded-lg text-xs font-bold transition ${role === 'farmer' ? 'bg-white text-forest-900 shadow-sm' : 'text-earth-700'}`}
+              >
+                🌾 Local Farmer
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-3">
+              {isSignUp && (
+                <div>
+                  <label className="text-xs font-bold text-earth-800 block mb-1">
+                    {role === 'restaurant' ? "Restaurant Name" : "Farm Name"}
+                  </label>
+                  <input 
+                    type="text" 
+                    required 
+                    placeholder={role === 'restaurant' ? "e.g. Osteria della Terra" : "e.g. Sun Valley Micro-Farm"} 
+                    value={orgName}
+                    onChange={e => setOrgName(e.target.value)}
+                    className="w-full text-xs p-2.5 rounded-lg border border-earth-300 bg-white"
+                  />
+                </div>
+              )}
+              <div>
+                <label className="text-xs font-bold text-earth-800 block mb-1">Email Address</label>
+                <input 
+                  type="email" 
+                  required 
+                  placeholder="chef@kitchen.com" 
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  className="w-full text-xs p-2.5 rounded-lg border border-earth-300 bg-white"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-earth-800 block mb-1">Password</label>
+                <input 
+                  type="password" 
+                  required 
+                  placeholder="••••••••" 
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  className="w-full text-xs p-2.5 rounded-lg border border-earth-300 bg-white"
+                />
+              </div>
+
+              <button type="submit" className="w-full py-3 rounded-xl bg-forest-800 hover:bg-forest-900 text-white font-bold text-xs mt-3 shadow transition">
+                {isSignUp ? "Complete Registration" : "Log In"}
+              </button>
+            </form>
+
+            {/* Quick Demo Login Option */}
+            <div className="mt-5 pt-4 border-t border-earth-200 text-center">
+              <span className="text-[11px] text-earth-600 block mb-2">Or test immediately with pre-configured demo account:</span>
+              <button 
+                onClick={() => onDemoLogin(role)}
+                className="w-full py-2 rounded-lg bg-harvest-100 hover:bg-harvest-200 text-forest-950 font-bold text-xs border border-harvest-300 transition"
+              >
+                ⚡ 1-Click Login as Demo {role === 'restaurant' ? 'Restaurant' : 'Farmer'}
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // STRIPE TEST MODE CHECKOUT MODAL
+    // =========================================================================
+    function StripeCheckoutModal({ isOpen, onClose, cartTotal, matchingPreview, onComplete }) {
+      const [cardNumber, setCardNumber] = useState("4242 •••• •••• 4242");
+      const [isProcessing, setIsProcessing] = useState(false);
+
+      const handlePay = () => {
+        setIsProcessing(true);
+        setTimeout(() => {
+          setIsProcessing(false);
+          onComplete("4242");
+        }, 1200);
+      };
+
+      const platformFee = Math.round(cartTotal * 0.05 * 100) / 100;
+      const netFarmerPool = Math.round((cartTotal - platformFee) * 100) / 100;
+
+      return (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white max-w-lg w-full rounded-3xl p-7 shadow-2xl border border-earth-300">
+            <div className="flex items-center justify-between pb-3 border-b border-earth-200">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-indigo-600 text-lg">stripe</span>
+                <span className="px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 text-[10px] font-bold border border-indigo-200">TEST MODE</span>
+              </div>
+              <button onClick={onClose} className="text-earth-500 hover:text-earth-900 text-xl font-bold">&times;</button>
+            </div>
+
+            <div className="my-5 space-y-4 text-xs">
+              <div className="p-4 rounded-xl bg-earth-50 border border-earth-200 space-y-2">
+                <div className="flex justify-between font-bold text-forest-950 text-sm">
+                  <span>Total Order Amount:</span>
+                  <span>${cartTotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-earth-600 text-[11px]">
+                  <span>Decentralized Farmer Net Pool (95%):</span>
+                  <span>${netFarmerPool.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-earth-600 text-[11px]">
+                  <span>Platform Redundancy Coordination Fee (5%):</span>
+                  <span>${platformFee.toFixed(2)}</span>
+                </div>
+              </div>
+
+              {/* Automatic Payout Splitting Breakdown */}
+              {matchingPreview && (
+                <div className="p-3 rounded-xl bg-forest-50 border border-forest-200 space-y-1.5">
+                  <span className="font-bold text-forest-900 block text-[11px]">Automated Stripe Direct Payout Splits:</span>
+                  {matchingPreview.farms.map((f, idx) => (
+                    <div key={idx} className="flex justify-between text-[11px] text-earth-800">
+                      <span>{f.name}</span>
+                      <span className="font-mono font-semibold">${(netFarmerPool / matchingPreview.farms.length).toFixed(2)} via Connect</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Card Inputs */}
+              <div className="space-y-2 pt-2">
+                <label className="font-bold text-earth-800 block">Test Credit Card</label>
+                <div className="p-3 rounded-lg border border-earth-300 bg-earth-50 flex items-center justify-between font-mono">
+                  <span>{cardNumber}</span>
+                  <span className="text-[10px] font-bold text-forest-800 bg-earth-200 px-2 py-0.5 rounded">VISA TEST</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <input type="text" readOnly value="MM/YY: 12/28" className="p-2.5 rounded-lg border border-earth-300 bg-earth-50 font-mono text-center" />
+                  <input type="text" readOnly value="CVC: 123" className="p-2.5 rounded-lg border border-earth-300 bg-earth-50 font-mono text-center" />
+                </div>
+              </div>
+
+              <button 
+                onClick={handlePay}
+                disabled={isProcessing}
+                className="w-full py-3.5 rounded-xl bg-forest-800 hover:bg-forest-900 text-white font-bold text-xs shadow-lg transition mt-4 flex items-center justify-center gap-2"
+              >
+                {isProcessing ? (
+                  <span>Processing Test Card with Stripe...</span>
+                ) : (
+                  <span>Authorise & Split Payout (${cartTotal.toFixed(2)}) &rarr;</span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Render the App
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
